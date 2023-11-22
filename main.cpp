@@ -3,7 +3,13 @@
 #include <limits>
 using namespace std;
 
-// Función para crear una matriz con todos los valores inicializados en "0"
+/*Funcion para crear una matriz de caracteres con filas y columnas especificas
+    
+    Recibe:
+        -Las filas y columnas con las que se quiere iniciar 
+    
+    Regresa: 
+        -La matriz creada inicializada en ceros*/
 vector<vector<char>> crearMatriz(int filas, int columnas)
 {
     // Inicializar la matriz con todos los valores en "0"
@@ -11,7 +17,10 @@ vector<vector<char>> crearMatriz(int filas, int columnas)
     return matriz;
 }
 
-/* Función para imprimir la matriz creada por el usaurio */
+/* Función para mostrar en consola una matriz de dos dimensiones
+
+    Recibe:
+        -La matriz a mostrar */
 void imprimirMatriz(const vector<vector<char>> &matriz)
 {
     for (const auto &fila : matriz)
@@ -24,7 +33,16 @@ void imprimirMatriz(const vector<vector<char>> &matriz)
     }
 }
 
-/*Funcion para cambiar el un valor de un elemento especifico de la matriz */
+/*Funcion para cambiar un valor de una matriz bidimensional a un valor especifico 
+
+    Recibe: 
+        -La matriz en la que se quiere cambiar el valor, debe de ser de dos dimensiones
+        -Fila y columna del valor que se quiere cambiar 
+        -Caracter al que se quiere cambiar la matriz
+
+    Regresa:
+        1: si se pudo cambiar el valor 
+        -1: si ocurrio un error*/
 int cambiarValorMatriz(vector<vector<char>> &matriz, int fila, int columna, char valor)
 {
     // Obtener la cantidad de filas y columnas
@@ -44,7 +62,14 @@ int cambiarValorMatriz(vector<vector<char>> &matriz, int fila, int columna, char
     }
 }
 
-// Función para encontrar coordenadas que contienen un valor dado, las regresa en un vector con las coordenadas encontradas
+/*Funcion para encontrar todas las coordenadas en las que se encuentra un valor especifico 
+
+    Recibe: 
+        -Vector en el que se va a buscar: tiene que ser de dos dimensiones
+        -Valor que se va a buscar 
+
+    Regresa: 
+        Un vector de pares con todas las coordenadas en las que se encontro el valor  */
 vector<pair<int, int>> encontrarCoordenadas(const vector<vector<char>> &matriz, char valor)
 {
     vector<pair<int, int>> coordenadas;
@@ -66,10 +91,15 @@ vector<pair<int, int>> encontrarCoordenadas(const vector<vector<char>> &matriz, 
 /*Funcion para agregar una 'n' a las [fila][columna] en caso de que el numero
     de 'n' en la matriz sea menor a num_naves
 
+Recibe: 
+    -El tablero del jugador 
+    -Fila y columna a las que se quiere agregar 
+    -Numero maximo de entidades "n" que puede haber 
+
 Regresa:
-    1 en caso de que se haya agregado la nave en las coordenadas especificas
-    2 en caso de que no se agrege por que ya se tiene el numero maximo de naves
-    -1 en caso de que haya un error con los indices indicados*/
+    1: en caso de que se haya agregado la nave en las coordenadas especificas
+    2: en caso de que no se agrege por que ya se tiene el numero maximo de naves
+    -1: en caso de que haya un error con los indices indicados*/
 int agregar_nave(vector<vector<char>> &matriz, int fila, int columna, int num_naves)
 {
     vector<pair<int, int>> naves = encontrarCoordenadas(matriz, 'n');
@@ -84,6 +114,16 @@ int agregar_nave(vector<vector<char>> &matriz, int fila, int columna, int num_na
     }
 };
 
+/*Funcion para eliminar una nave del tablero del jugador 
+
+Recibe: 
+    -Tablero del jugador 
+    -Vector de coordenadas en las que se puede eliminar 
+    -indice del vector de coordenadas que se quieren eliminar
+
+Regresa: 
+    1: si se logra eliminar 
+    2: si no se pudo eliminar*/
 int eliminar_nave(vector<vector<char>> &matriz, vector<pair<int, int>> naves, int indice)
 {
     if (indice >= 0 and indice < naves.size())
@@ -97,8 +137,10 @@ int eliminar_nave(vector<vector<char>> &matriz, vector<pair<int, int>> naves, in
     }
 }
 
-/*Funcion para extraer las coordenadas dadas por el usuario
-Regresa una tubpla con los dos valores dados
+/*Funcion para capturar las coordenadas dadas por el usuario
+
+Regresa una tupla con los dos valores capturados
+
 En caso de que uno de los valores no sea valido, regresa el error*/
 tuple<int, int> obtenerCoordenadas()
 {
@@ -119,7 +161,8 @@ tuple<int, int> obtenerCoordenadas()
 
 /*Funcion que le pide al usuario que ingrese una variable de tipo "int"
     en caso de que no sea un integer regresara un error
-Recibe el texto que quieres que se muestre al usuario*/
+
+  Recibe el texto que quieres que se muestre al usuario*/
 int captura_int(string caption)
 {
     try

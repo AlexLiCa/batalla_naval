@@ -3,6 +3,7 @@
 
 
 main
+build
 ### C++ ###
 # Prerequisites
 *.d
