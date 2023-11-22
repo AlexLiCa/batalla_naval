@@ -187,6 +187,7 @@ int captura_int(string caption)
     catch (const invalid_argument &e)
     {
         cerr << e.what() << endl;
+        return -1;
     }
 }
 
@@ -261,7 +262,10 @@ int main()
                 {
                     imprimirMatriz(tablero_jugador);
                 }
-                else
+                else if (agregada == 2){
+                    cout << "Ya no puedes poner mas naves" << endl;
+                }
+                else if (agregada == -1)
                 {
                     cout << "No se pudo agregar" << endl;
                 }
@@ -276,7 +280,6 @@ int main()
             naves = encontrarCoordenadas(tablero_jugador, 'n');
             if (naves.size() > 0)
             {
-                eliminada = -1;
                 // Mostramos los indices de "naves"
                 for (size_t i = 0; i < naves.size(); ++i)
                 {
