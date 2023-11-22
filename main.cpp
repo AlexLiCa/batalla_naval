@@ -178,7 +178,7 @@ int captura_int(string caption)
             cin.clear();
             // Descartar la entrada incorrecta
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            throw invalid_argument("Error: No es un número entero válido.");
+            throw invalid_argument("No es un número entero.");
         }
 
         // Aquí puedes trabajar con el número ingresado
@@ -211,7 +211,7 @@ int mostrarMenu()
             cin.clear();
             // Descartar la entrada incorrecta
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            throw invalid_argument("Error: No es un número entero válido.");
+            throw invalid_argument("No es una entrada válida. \n");
         }
         cin >> opcion;
         // Limpiar el buffer de entrada
@@ -244,6 +244,8 @@ int main()
 
         switch (opc)
         {
+        case 0:
+            break;
         case 1:
             cout << "Opción 1: Mostrar Tablero" << endl;
             imprimirMatriz(tablero_jugador);
