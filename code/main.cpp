@@ -10,7 +10,7 @@ vector<vector<char>> crearMatriz(int filas, int columnas)
     return matriz;
 }
 
-/* Función para imprimir la matriz creada por el usaurio */
+/* Función para imprimir la matriz creada por el usuario */
 void imprimirMatriz(const vector<vector<char>> &matriz)
 {
     for (const auto &fila : matriz)
@@ -24,7 +24,7 @@ void imprimirMatriz(const vector<vector<char>> &matriz)
 }
 
 /*
-Funcion para cambiar el un valor de un elemento especifico de la matriz 
+Función para cambiar el un valor de un elemento especifico de la matriz
 */
 int cambiarValorMatriz(vector<vector<char>> &matriz, int fila, int columna, char valor)
 {
