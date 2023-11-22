@@ -4,6 +4,7 @@
 
 main
 build
+.vscode
 ### C++ ###
 # Prerequisites
 *.d
