@@ -21,6 +21,8 @@ public:
     Barco(void);
     void actualizar_vida();
     void cambiar_dir();
+    unsigned short get_longitud();
+    bool get_direccion();
 };
 
 #endif // !BARCO_H

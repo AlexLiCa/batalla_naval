@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <limits>
+#include "./lib/headers/tablero.h"
+
 using namespace std;
 
 /*Funcion para crear una matriz de caracteres con filas y columnas especificas
@@ -227,6 +229,12 @@ int mostrarMenu()
 
 int main()
 {
+    //* ----------------------------------
+    //* Pruebas Cancino
+    //* ----------------------------------
+    // Tablero tab;
+    // tab.muestra_tablero();
+
     int filas = 5, columnas = 5, num_naves = 3, indice, eliminada = 0;
 
     // Crear la matriz del jugador
