@@ -5,3 +5,15 @@
 Tablero::Tablero()
 {
 }
+
+void Tablero::muestra_tablero()
+{
+}
+
+void Tablero::tira()
+{
+}
+
+void Tablero::coloca_barco()
+{
+}

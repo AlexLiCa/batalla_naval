@@ -11,6 +11,9 @@ class Tablero
 private:
 public:
     Tablero(void);
+    void muestra_tablero();
+    void tira();
+    void coloca_barco();
 };
 
 #endif // !TABLERO_H
