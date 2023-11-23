@@ -4,15 +4,12 @@
 using namespace std;
 
 // functions definition -------->
-Barco::Barco(unsigned short x, unsigned short y, bool dir, unsigned short longitud) : posX(x), posY(y), dir(dir), longitud(longitud) {}
+Barco::Barco(char nombre, unsigned short longitud) : nombre(nombre), longitud(longitud) {}
 
 // Función para imprimir la información del barco (solo para propósitos de prueba)
-void Barco::muestra_barco()
+void Barco::muestra_barco() const
 {
-    cout << "Posición X: " << posX << endl;
-    cout << "Posición Y: " << posY << endl;
-    cout << "Longitud: " << longitud << endl;
-    cout << "direccion: " << dir << endl;
+    cout  << nombre <<  "--" << longitud << endl;
 }
 
 unsigned short Barco::get_longitud()
@@ -22,4 +19,8 @@ unsigned short Barco::get_longitud()
 bool Barco::get_direccion()
 {
     return this->dir;
+}
+
+char Barco::get_nombre(){
+    return this->nombre;
 }

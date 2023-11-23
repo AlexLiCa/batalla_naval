@@ -19,6 +19,26 @@ Tablero::Tablero()
     };
 }
 
+void Tablero::coloca_barco(Barco &barco, unsigned short x1, unsigned short y1, bool direccion)
+{
+    /*Horizontal*/
+    if (direccion)
+    {
+        for (unsigned short i = x1; i < barco.get_longitud(); i++)
+        {
+            tablero[i][y1] = barco.get_nombre();
+        }
+    }
+    /*Vertical*/
+    else
+    {
+        for (unsigned short i = y1; i < barco.get_longitud(); i++)
+        {
+            tablero[x1][i] = barco.get_nombre();
+        }
+    }
+}
+
 bool Tablero::checa_posicion(unsigned short x, unsigned short y, unsigned short longitud, bool direccion)
 {
     bool valida = true;
@@ -91,22 +111,4 @@ void Tablero::muestra_tablero()
 
 void Tablero::tira()
 {
-}
-
-void Tablero::coloca_barco(Barco &barco, unsigned short x1, unsigned short y1)
-{
-    /*Horizontal*/
-    if (barco.get_direccion())
-    {
-        for (unsigned short i = y1; i < barco.get_longitud(); i++)
-        {
-        }
-    }
-    /*Vertical*/
-    else
-    {
-        for (unsigned short i = x1; i < barco.get_longitud(); i++)
-        {
-        }
-    }
 }

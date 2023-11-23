@@ -16,6 +16,8 @@ private:
     unsigned short posX;
     unsigned short posY;
 
+    char nombre;
+
     // std::vector<std::pair<unsigned short, unsigned short>> posiciones;
 
     /*
@@ -25,11 +27,13 @@ private:
     bool dir;
 
 public:
-    Barco(unsigned short, unsigned short, bool , unsigned short);
-    void muestra_barco();
+    Barco(char , unsigned short);
+    void cambia_valor(unsigned short, unsigned short);
+    void muestra_barco() const;
     void actualizar_vida();
     void cambiar_dir();
     unsigned short get_longitud();
+    char get_nombre();
     bool get_direccion();
 };
 
