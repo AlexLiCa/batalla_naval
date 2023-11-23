@@ -1,14 +1,16 @@
 #include <iostream>
 #include <vector>
 #include <limits>
+#include "./lib/headers/tablero.h"
+
 using namespace std;
 
 /*Funcion para crear una matriz de caracteres con filas y columnas especificas
-    
+
     Recibe:
-        -Las filas y columnas con las que se quiere iniciar 
-    
-    Regresa: 
+        -Las filas y columnas con las que se quiere iniciar
+
+    Regresa:
         -La matriz creada inicializada en ceros*/
 vector<vector<char>> crearMatriz(int filas, int columnas)
 {
@@ -33,15 +35,15 @@ void imprimirMatriz(const vector<vector<char>> &matriz)
     }
 }
 
-/*Funcion para cambiar un valor de una matriz bidimensional a un valor especifico 
+/*Funcion para cambiar un valor de una matriz bidimensional a un valor especifico
 
-    Recibe: 
+    Recibe:
         -La matriz en la que se quiere cambiar el valor, debe de ser de dos dimensiones
-        -Fila y columna del valor que se quiere cambiar 
+        -Fila y columna del valor que se quiere cambiar
         -Caracter al que se quiere cambiar la matriz
 
     Regresa:
-        1: si se pudo cambiar el valor 
+        1: si se pudo cambiar el valor
         -1: si ocurrio un error*/
 int cambiarValorMatriz(vector<vector<char>> &matriz, int fila, int columna, char valor)
 {
@@ -62,13 +64,13 @@ int cambiarValorMatriz(vector<vector<char>> &matriz, int fila, int columna, char
     }
 }
 
-/*Funcion para encontrar todas las coordenadas en las que se encuentra un valor especifico 
+/*Funcion para encontrar todas las coordenadas en las que se encuentra un valor especifico
 
-    Recibe: 
+    Recibe:
         -Vector en el que se va a buscar: tiene que ser de dos dimensiones
-        -Valor que se va a buscar 
+        -Valor que se va a buscar
 
-    Regresa: 
+    Regresa:
         Un vector de pares con todas las coordenadas en las que se encontro el valor  */
 vector<pair<int, int>> encontrarCoordenadas(const vector<vector<char>> &matriz, char valor)
 {
@@ -91,10 +93,10 @@ vector<pair<int, int>> encontrarCoordenadas(const vector<vector<char>> &matriz, 
 /*Funcion para agregar una 'n' a las [fila][columna] en caso de que el numero
     de 'n' en la matriz sea menor a num_naves
 
-Recibe: 
-    -El tablero del jugador 
-    -Fila y columna a las que se quiere agregar 
-    -Numero maximo de entidades "n" que puede haber 
+Recibe:
+    -El tablero del jugador
+    -Fila y columna a las que se quiere agregar
+    -Numero maximo de entidades "n" que puede haber
 
 Regresa:
     1: en caso de que se haya agregado la nave en las coordenadas especificas
@@ -114,15 +116,15 @@ int agregar_nave(vector<vector<char>> &matriz, int fila, int columna, int num_na
     }
 };
 
-/*Funcion para eliminar una nave del tablero del jugador 
+/*Funcion para eliminar una nave del tablero del jugador
 
-Recibe: 
-    -Tablero del jugador 
-    -Vector de coordenadas en las que se puede eliminar 
+Recibe:
+    -Tablero del jugador
+    -Vector de coordenadas en las que se puede eliminar
     -indice del vector de coordenadas que se quieren eliminar
 
-Regresa: 
-    1: si se logra eliminar 
+Regresa:
+    1: si se logra eliminar
     2: si no se pudo eliminar*/
 int eliminar_nave(vector<vector<char>> &matriz, vector<pair<int, int>> naves, int indice)
 {
@@ -227,6 +229,12 @@ int mostrarMenu()
 
 int main()
 {
+    //* ----------------------------------
+    //* Pruebas Cancino
+    //* ----------------------------------
+    // Tablero tab;
+    // tab.muestra_tablero();
+
     int filas = 5, columnas = 5, num_naves = 3, indice, eliminada = 0;
 
     // Crear la matriz del jugador
@@ -264,7 +272,8 @@ int main()
                 {
                     imprimirMatriz(tablero_jugador);
                 }
-                else if (agregada == 2){
+                else if (agregada == 2)
+                {
                     cout << "Ya no puedes poner mas naves" << endl;
                 }
                 else if (agregada == -1)
