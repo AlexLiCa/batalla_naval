@@ -13,8 +13,15 @@ private:
 
     unsigned short vida;
 
-    std::vector<std::pair<unsigned short, unsigned short>> posiciones;
+    unsigned short x;  
+    unsigned short y;
 
+    //std::vector<std::pair<unsigned short, unsigned short>> posiciones;
+
+    /*
+    Verdadera : Horizontal 
+    Falsa : Vertical
+    */
     bool dir;
 
 public:
