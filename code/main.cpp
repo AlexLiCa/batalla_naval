@@ -126,7 +126,7 @@ Regresa:
     2: si no se pudo eliminar*/
 int eliminar_nave(vector<vector<char>> &matriz, vector<pair<int, int>> naves, int indice)
 {
-    if (indice >= 0 and indice < naves.size())
+    if (indice >= 0 && indice < naves.size())
     {
         matriz[naves[indice].first][naves[indice].second] = '0';
         return 1;
