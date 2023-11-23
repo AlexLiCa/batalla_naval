@@ -24,15 +24,16 @@ void Tablero::coloca_barco(Barco &barco, unsigned short x1, unsigned short y1, b
     /*Horizontal*/
     if (direccion)
     {
-        for (unsigned short i = x1; i < barco.get_longitud(); i++)
+        for (unsigned short i = x1; i < x1 + barco.get_longitud(); i++)
         {
+            //cout << direccion << endl;
             tablero[i][y1] = barco.get_nombre();
         }
     }
     /*Vertical*/
     else
     {
-        for (unsigned short i = y1; i < barco.get_longitud(); i++)
+        for (unsigned short i = y1; i < y1 + barco.get_longitud(); i++)
         {
             tablero[x1][i] = barco.get_nombre();
         }

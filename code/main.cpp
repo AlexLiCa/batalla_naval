@@ -131,13 +131,17 @@ int main()
             }
             /*Pedimos el indice del barco que se quiere agregar*/
             barco_elegido = captura_entero("Barco a agregar: ");
+            
             if (barco_elegido >= 0 && barco_elegido < barcos.size())
             {
+                cout<< barcos[barco_elegido].get_nombre()<< endl;
                 direccion = captura_entero("Direccion: del barco: ");
+                cout << direccion << endl;
                 /*Pedimos las coordenadas a las que vamos a agregar el barco*/
                 coordenadas = capturar_coordenadas();
-                /*Verificamos si las coordenadas capturadas son validas*/
-                if (get<0>(coordenadas) > -1 && (direccion == 0 || direccion == 1))
+                cout << get<0>(coordenadas) << get<1>(coordenadas) << endl;
+                    /*Verificamos si las coordenadas capturadas son validas*/
+                    if (get<0>(coordenadas) > -1 && (direccion == 0 || direccion == 1))
                 {
                     disponible = tablero_jugador.checa_posicion(get<0>(coordenadas), get<1>(coordenadas),
                                                                 barcos[barco_elegido].get_longitud(), (direccion == 0) ? true : false);
@@ -145,7 +149,7 @@ int main()
                     {
                         tablero_jugador.coloca_barco(barcos[barco_elegido], get<0>(coordenadas),
                                                      get<1>(coordenadas), (direccion == 0) ? true : false);
-                        tablero_jugador.muestra_tablero();
+                        // tablero_jugador.muestra_tablero();
                     }
                 }
             }
