@@ -1,7 +1,7 @@
 // necessary includes -------->
-#include "./headers/tablero.h"
+#include "../headers/tablero.h"
 
-
+using namespace std;
 // functions definition -------->
 Tablero::Tablero()
 {
@@ -21,56 +21,71 @@ Tablero::Tablero()
 
 bool Tablero::checa_posicion(unsigned short x, unsigned short y, unsigned short longitud, bool direccion)
 {
+    bool valida = true;
     if (direccion) // Si la dirección es verdadera, horizontal
     {
         // Verificar si las posiciones están dentro de los límites y son '0'
-        for (unsigned short i = y; i < y + longitud; ++i)
+        for (unsigned short i = x; i < x + longitud; ++i)
         {
-            if (i >= 10 || i < 0 || tablero[x][i] != '0')
-                return false;
+
+            if (i >= 10 || i < 0 )
+            {
+                valida = false;
                 break;
+            }
+            else if (tablero[i][y] != '0'){
+                valida = false;
+                break;
+            }
         }
     }
     else // Si la dirección es falsa, vertical
     {
         // Verificar si las posiciones están dentro de los límites y son '0'
-        for (unsigned short i = x; i < x + longitud; ++i)
+        for (unsigned short i = y; i < y + longitud; ++i)
         {
-            if (i >= 10 || tablero[i][y] != '0')
-                return false;
+            if (i >= 10 || i < 0 )
+            {
+                valida = false;
                 break;
+            }
+            else if (tablero[x][i] != '0')
+            {
+                valida = false;
+                break;
+            }
         }
     }
 
     // Si se llega aquí, significa que las posiciones están disponibles
-    return true;
+    return valida;
 }
 
 void Tablero::muestra_tablero()
 {
-    for (short i = 0; i < 100; i++)
+    for (short i = 0; i < 5; i++)
     {
-        std::cout << "\n";
+        cout << "\n";
     }
 
-    std::string separador = "  +---------------------------------------+";
+    string separador = "  +---------------------------------------+";
 
-    std::cout << "  ";
+    cout << "  ";
     for (short i = 0; i < 10; i++)
     {
-        std::cout << std::setw(3) << i << " ";
+        cout << setw(3) << i << " ";
     }
-    std::cout << std::endl;
-    std::cout << separador << std::endl;
+    cout << endl;
+    cout << separador << endl;
     for (short int i = 0; i < this->tablero.size(); i++)
     {
-        std::cout << i << " | ";
+        cout << i << " | ";
         for (short int j = 0; j < this->tablero[i].size(); j++)
         {
-            std::cout << this->tablero[i][j] << " | ";
+            cout << this->tablero[i][j] << " | ";
         }
-        std::cout << std::endl;
-        std::cout << separador << std::endl;
+        cout << endl;
+        cout << separador << endl;
     }
 }
 
