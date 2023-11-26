@@ -9,7 +9,7 @@ Barco::Barco(char nombre, unsigned short longitud) : nombre(nombre), longitud(lo
 // Función para imprimir la información del barco (solo para propósitos de prueba)
 void Barco::muestra_barco() const
 {
-    cout  << nombre <<  "--" << longitud << endl;
+    cout  << nombre <<  " -L: " << longitud << endl;
 }
 
 unsigned short Barco::get_longitud()

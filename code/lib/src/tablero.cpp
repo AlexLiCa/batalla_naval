@@ -43,7 +43,7 @@ void Tablero::coloca_barco(Barco &barco, unsigned short x1, unsigned short y1, b
 bool Tablero::checa_posicion(unsigned short x, unsigned short y, unsigned short longitud, bool direccion)
 {
     bool valida = true;
-    if (direccion) // Si la dirección es verdadera, horizontal
+    if (direccion) // Si la dirección es verdadera (1), horizontal
     {
         // Verificar si las posiciones están dentro de los límites y son '0'
         for (unsigned short i = x; i < x + longitud; ++i)
@@ -60,7 +60,7 @@ bool Tablero::checa_posicion(unsigned short x, unsigned short y, unsigned short 
             }
         }
     }
-    else // Si la dirección es falsa, vertical
+    else // Si la dirección es falsa (0), vertical
     {
         // Verificar si las posiciones están dentro de los límites y son '0'
         for (unsigned short i = y; i < y + longitud; ++i)
