@@ -20,8 +20,8 @@ tuple<short, short> capturar_coordenadas()
             // Si la entrada no es válida, limpiar el estado de error y devolver una tupla con ambos valores igual a -1
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            throw invalid_argument("\nNo son coordenadas validas. \n");
             return make_tuple(-1, -1);
+            throw invalid_argument("\nNo son coordenadas validas. \n");
         }
     }
     catch (const invalid_argument &e)
@@ -143,11 +143,9 @@ int main()
             if (barco_elegido >= 0 && barco_elegido < barcos_disponibles.size())
             {
                 // cout << barcos_disponibles[barco_elegido].get_nombre() << endl;
-                direccion = captura_entero("Direccion del barco(0:Horizontal, 1:Vertical): ");
-                cout << direccion << endl;
+                direccion = captura_entero("Direccion del barco (0:Horizontal, 1:Vertical): ");
                 /*Pedimos las coordenadas a las que vamos a agregar el barco*/
                 coordenadas = capturar_coordenadas();
-                cout << "(" << get<0>(coordenadas) << "," << get<1>(coordenadas) << ")" << endl;
                 /*Verificamos si las coordenadas capturadas son validas*/
                 if (get<0>(coordenadas) > -1 && (direccion == 0 || direccion == 1))
                 {
@@ -178,8 +176,8 @@ int main()
             }
             break;
         case 3:
-            /*Discutir con Cancino como vamos a pasar los datos para ajustar la funcion tira a lo que se
-                recibira o hacer una funcion para tratar los datos que se recibiran*/
+            /*Discutir con Cancino como vamos a pasar los datos para ajustar la funcion tira, lo que se
+                recibira o hacer una funcion para tratar los datos que se recibidos*/
             cout << "Opción 3: Tirar" << endl;
             coordenadas = capturar_coordenadas();
             if ((get<0>(coordenadas) > -1 && get<0>(coordenadas) < 10) && (get<1>(coordenadas) > -1 && get<1>(coordenadas) < 10))
