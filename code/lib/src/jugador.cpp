@@ -6,8 +6,10 @@
  * @brief Crea una nueva instancia de un Jugador
  *
  */
-Jugador::Jugador(void) : tablero_jugador(), tablero_oponente(), tablero_listo(false)
+Jugador::Jugador(void) : tablero_jugador(), tablero_oponente()
 {
+    this->tablero_listo = false;
+
     char nombres_barcos[] = {'A', 'B', 'C', 'D'};
 
     for (int i = 0; i < 4; i++)

@@ -4,7 +4,15 @@
 // #include "barco.h"
 
 // functions definition -------->
-Barco::Barco(char nombre, unsigned short longitud) : nombre(nombre), longitud(longitud), colocado(false), dir(true) {}
+Barco::Barco(char nombre, unsigned short longitud)
+{
+    this->nombre = nombre;
+    this->longitud = longitud;
+    this->vida = longitud;
+
+    this->colocado = false;
+    this->dir = true;
+}
 
 /**
  * @brief Muestra la información del barco en la terminal
