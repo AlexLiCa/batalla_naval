@@ -65,6 +65,7 @@ int menu()
     // Mostrar opciones del menú
     cout << "1. Mostrar Tablero" << endl;
     cout << "2. Agregar Barco" << endl;
+    cout << "3. Tira" << endl;
     cout << "4. Listo" << endl;
     cout << "Ingrese su opción: ";
     try
@@ -94,17 +95,16 @@ int menu()
 int main()
 {
 
-    unsigned short num_barcos = 3, i = 0, opc = 0;
+    unsigned short num_barcos = 3, i = 0, opc = 0, tiro;
     short barco_elegido, direccion = -1;
     bool disponible;
     tuple<short, short> coordenadas;
     Tablero tablero_jugador;
-    vector<Barco>barcos_disponibles, barcos_usados;
+    vector<Barco> barcos_disponibles, barcos_usados;
     barcos_disponibles.push_back(Barco('A', 1));
     barcos_disponibles.push_back(Barco('B', 2));
     barcos_disponibles.push_back(Barco('C', 3));
     barcos_disponibles.push_back(Barco('D', 4));
-
 
     do
     {
@@ -169,7 +169,34 @@ int main()
                      << endl;
             }
             break;
+        case 3:
+            cout << "Opción 3: Tirar" << endl;
+            coordenadas = capturar_coordenadas();
+            if ((get<0>(coordenadas) > -1 && get<0>(coordenadas) < 10) && (get<1>(coordenadas) > -1 && get<1>(coordenadas) < 10))
+            {
+                tiro = tablero_jugador.tira(get<0>(coordenadas), get<1>(coordenadas));
+                if (tiro == 0)
+                {
+                    cout << "Fallaste" << endl;
+                }
+                else if (tiro == 1)
+                {
+                    cout << "Le diste a un barco !" << endl;
+                }
+                else if (tiro == 2)
+                {
+                    cout << "Ya no quedan mas barcos" << endl;
+                }
+                else if (tiro == 3)
+                {
+                    cout << "Ya habias tirado ahi" << endl;
+                }
+                else {
+                    cout << "Parece que hubo un error" << endl; 
+                }
+            }
 
+            break;
         case 4:
             cout << "Opción 4: Listo" << endl;
             break;
