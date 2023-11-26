@@ -115,7 +115,7 @@ void Jugador::colocar_barco()
     else
     {
         unsigned short barco_index = -1;
-        std::cout << "Seleccione un barco: " << std::endl;
+        std::cout << "Seleccione un barco: ";
         while (!(std::cin >> barco_index))
         {
             std::cin.clear();
