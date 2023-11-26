@@ -26,6 +26,12 @@ void Jugador::muestra_tablero(bool del_jugador)
     del_jugador ? this->tablero_jugador.muestra_tablero() : this->tablero_oponente.muestra_tablero();
 }
 
+/**
+ * @brief Otorga un menu de opciones para realizar con un barco
+ *
+ * @param barco Barco sobre el que se harán las operaciones
+ * @return unsigned short opción elegida por el usuario
+ */
 unsigned short menu_barco(Barco &barco)
 {
     unsigned short opcion = 0;
@@ -57,6 +63,26 @@ unsigned short menu_barco(Barco &barco)
     }
 
     return opcion;
+}
+
+/**
+ * @brief Captura coordenadas para colocar un barco
+ *
+ * @return std::pair<unsigned short, unsigned short>
+ */
+std::pair<unsigned short, unsigned short> capturar_coordenadas()
+{
+    unsigned short x, y;
+
+    std::cout << "Ingresa dos valores (x y): ";
+    while (!(std::cin >> x >> y))
+    {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Ingresa dos valores (x y): ";
+    }
+
+    return {x, y};
 }
 
 /**
@@ -97,6 +123,7 @@ void Jugador::colocar_barco()
         std::cout << "\nBarco Seleccionado: " << this->barcos[barco_index].get_nombre() << std::endl;
 
         unsigned short op_barco;
+        std::pair<unsigned short, unsigned short> coordenadas;
         do
         {
             op_barco = menu_barco(this->barcos[barco_index]);
@@ -108,7 +135,15 @@ void Jugador::colocar_barco()
                 break;
 
             case 2:
-                // Pedir Coordenadas y poner en tablero del jugador
+                do
+                {
+                    coordenadas = capturar_coordenadas();
+                } while (!this->tablero_jugador.checa_posicion(this->barcos[barco_index], coordenadas.first, coordenadas.second));
+
+                this->tablero_jugador.coloca_barco(this->barcos[barco_index], coordenadas.first, coordenadas.second);
+
+                std::cout << "Barco Colocado Correctamente" << std::endl;
+
                 break;
 
             default:

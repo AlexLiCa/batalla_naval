@@ -7,25 +7,6 @@
 
 using namespace std;
 
-/*Funcion que le pide al usuario que ingrese coordenadas, si las coordenadas no
-    son por numeros regresa una tupla con dos "-1"*/
-tuple<short, short> capturar_coordenadas()
-{
-    short x, y;
-
-    cout << "Ingresa dos valores (x y): ";
-    if (!(cin >> x >> y))
-    {
-        // Si la entrada no es válida, limpiar el estado de error y devolver una tupla con ambos valores igual a -1
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        return make_tuple(-1, -1);
-    }
-
-    // Devolver una tupla con los valores capturados
-    return make_tuple(x, y);
-}
-
 short captura_entero(string caption)
 {
     short numero = 0;
