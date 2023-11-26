@@ -13,12 +13,20 @@ tuple<short, short> capturar_coordenadas()
     short x, y;
 
     cout << "Ingresa dos valores (x y): ";
-    if (!(cin >> x >> y))
+    try
     {
-        // Si la entrada no es válida, limpiar el estado de error y devolver una tupla con ambos valores igual a -1
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        return make_tuple(-1, -1);
+        if (!(cin >> x >> y))
+        {
+            // Si la entrada no es válida, limpiar el estado de error y devolver una tupla con ambos valores igual a -1
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            throw invalid_argument("\nNo son coordenadas validas. \n");
+            return make_tuple(-1, -1);
+        }
+    }
+    catch (const invalid_argument &e)
+    {
+        cerr << e.what() << endl;
     }
 
     // Devolver una tupla con los valores capturados
@@ -170,6 +178,8 @@ int main()
             }
             break;
         case 3:
+            /*Discutir con Cancino como vamos a pasar los datos para ajustar la funcion tira a lo que se
+                recibira o hacer una funcion para tratar los datos que se recibiran*/
             cout << "Opción 3: Tirar" << endl;
             coordenadas = capturar_coordenadas();
             if ((get<0>(coordenadas) > -1 && get<0>(coordenadas) < 10) && (get<1>(coordenadas) > -1 && get<1>(coordenadas) < 10))
@@ -191,8 +201,9 @@ int main()
                 {
                     cout << "Ya habias tirado ahi" << endl;
                 }
-                else {
-                    cout << "Parece que hubo un error" << endl; 
+                else
+                {
+                    cout << "Parece que hubo un error" << endl;
                 }
             }
 
