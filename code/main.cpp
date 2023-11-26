@@ -204,8 +204,9 @@ int main()
                     cout << "Parece que hubo un error" << endl;
                 }
             }
-            else{
-                cout << "Coordenadas fuera de rango" << endl; 
+            else
+            {
+                cout << "Coordenadas fuera de rango" << endl;
             }
 
             break;
