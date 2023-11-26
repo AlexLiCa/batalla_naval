@@ -6,7 +6,7 @@ using namespace std;
 Tablero::Tablero()
 {
     this->tablero = {
-        {'D', 'D', 'D', 'D', '0', '0', '0', '0', '0', '0'},
+        {'D', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
         {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
         {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
         {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
@@ -131,29 +131,26 @@ unsigned short Tablero::barcos_restantes()
 
 unsigned short Tablero::tira(short x, short y)
 {
-    unsigned short vidas = -1;
+    unsigned short vidas = barcos_restantes(), respuesta;
+    cout << "Vidas restantes: " << vidas << endl;
+
     if (tablero[x][y] == 'A' || tablero[x][y] == 'B' || tablero[x][y] == 'C' || tablero[x][y] == 'D')
     {
+        tablero[x][y] = 'E';
         vidas = barcos_restantes();
-        cout << "Vidas restantes: " << vidas << endl;
-        if (vidas > 0)
-        {
-            tablero[x][y] = 'E';
-            vidas = 1;
-        }
-        else if (vidas == 0)
-        {
-            vidas = 2;
-        }
+        respuesta = 1;
     }
     else if (tablero[x][y] == 'X' || tablero[x][y] == 'E')
     {
-        vidas = 3;
+        respuesta = 3;
     }
     else
     {
-        tablero[x][y] = 'X'; 
-        vidas = 0;
+        tablero[x][y] = 'X';
+        respuesta = 0;
     }
-    return vidas;
+    if (vidas == 0){
+        respuesta = 2;
+    }
+    return respuesta;
 }
