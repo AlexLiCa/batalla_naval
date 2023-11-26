@@ -1,8 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <limits>
-#include "lib/headers/tablero.h"
-#include "lib/headers/barco.h"
 #include "lib/headers/jugador.h"
 
 using namespace std;
