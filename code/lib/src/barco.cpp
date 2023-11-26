@@ -1,7 +1,5 @@
 // necessary includes -------->
 #include "../headers/barco.h"
-// #include "barco.h"
-using namespace std;
 
 // functions definition -------->
 Barco::Barco(char nombre, unsigned short longitud) : nombre(nombre), longitud(longitud) {}
@@ -9,7 +7,7 @@ Barco::Barco(char nombre, unsigned short longitud) : nombre(nombre), longitud(lo
 // Función para imprimir la información del barco (solo para propósitos de prueba)
 void Barco::muestra_barco() const
 {
-    cout  << nombre <<  "--" << longitud << endl;
+    std::cout  << nombre <<  "--" << longitud << std::endl;
 }
 
 unsigned short Barco::get_longitud()

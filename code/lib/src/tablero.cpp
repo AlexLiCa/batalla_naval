@@ -1,7 +1,6 @@
 // necessary includes -------->
 #include "../headers/tablero.h"
 
-using namespace std;
 // functions definition -------->
 Tablero::Tablero()
 {
@@ -21,92 +20,73 @@ Tablero::Tablero()
 
 void Tablero::coloca_barco(Barco &barco, unsigned short x1, unsigned short y1, bool direccion)
 {
-    /*Horizontal*/
-    if (direccion)
+    unsigned short pos_inicial = direccion ? y1 : x1;
+
+    for (unsigned short i = pos_inicial; i < pos_inicial + barco.get_longitud(); i++)
     {
-        for (unsigned short i = x1; i < x1 + barco.get_longitud(); i++)
+        if(direccion)
         {
-            //cout << direccion << endl;
-            tablero[i][y1] = barco.get_nombre();
+            tablero[i][x1] = barco.get_nombre();
         }
-    }
-    /*Vertical*/
-    else
-    {
-        for (unsigned short i = y1; i < y1 + barco.get_longitud(); i++)
+        else 
         {
-            tablero[x1][i] = barco.get_nombre();
+            tablero[y1][i] = barco.get_nombre();
         }
     }
 }
 
 bool Tablero::checa_posicion(unsigned short x, unsigned short y, unsigned short longitud, bool direccion)
 {
-    bool valida = true;
-    if (direccion) // Si la dirección es verdadera, horizontal
-    {
-        // Verificar si las posiciones están dentro de los límites y son '0'
-        for (unsigned short i = x; i < x + longitud; ++i)
-        {
+    unsigned short pos_inicial = direccion ? y : x;
 
-            if (i >= 10 || i < 0 )
-            {
-                valida = false;
-                break;
-            }
-            else if (tablero[i][y] != '0'){
-                valida = false;
-                break;
-            }
-        }
+    unsigned short pos_final = pos_inicial + longitud;
+
+    if(pos_final >= 10){
+        return false;
     }
-    else // Si la dirección es falsa, vertical
+
+    // Verificar si las posiciones están dentro de los límites y son '0'
+    for (unsigned short i = pos_inicial; i < pos_final; ++i)
     {
-        // Verificar si las posiciones están dentro de los límites y son '0'
-        for (unsigned short i = y; i < y + longitud; ++i)
+        char valor_actual = direccion ? tablero[x][i] : tablero[i][y];
+        
+        if (valor_actual != '0')
         {
-            if (i >= 10 || i < 0 )
-            {
-                valida = false;
-                break;
-            }
-            else if (tablero[x][i] != '0')
-            {
-                valida = false;
-                break;
-            }
+            return false;
         }
     }
 
     // Si se llega aquí, significa que las posiciones están disponibles
-    return valida;
+    return true;
 }
 
 void Tablero::muestra_tablero()
 {
     for (short i = 0; i < 5; i++)
     {
-        cout << "\n";
+        std::cout << "\n";
     }
 
-    string separador = "  +---------------------------------------+";
+    std::string separador = "  +---------------------------------------+";
 
-    cout << "  ";
+    std::cout << "  ";
     for (short i = 0; i < 10; i++)
     {
-        cout << setw(3) << i << " ";
+        std::cout << std::setw(3) << i << " ";
     }
-    cout << endl;
-    cout << separador << endl;
+    std::cout << std::endl;
+    std::cout << separador << std::endl;
     for (short int i = 0; i < this->tablero.size(); i++)
     {
-        cout << i << " | ";
+        std::cout << i << " | ";
         for (short int j = 0; j < this->tablero[i].size(); j++)
         {
-            cout << this->tablero[i][j] << " | ";
+            char valor_a_imprimir = this->tablero[i][j] != '0' ? this->tablero[i][j] : ' ';
+            
+            std::cout << valor_a_imprimir << " | ";
         }
-        cout << endl;
-        cout << separador << endl;
+        std::cout << std::endl;
+        std::cout << separador << std::endl;
     }
 }
 

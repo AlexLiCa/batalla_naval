@@ -18,7 +18,7 @@ private:
 
     char nombre;
 
-    // std::vector<std::pair<unsigned short, unsigned short>> posiciones;
+    std::vector<std::pair<unsigned short, unsigned short>> posiciones;
 
     /*
     Verdadera : Horizontal
