@@ -1,12 +1,15 @@
 // necessary includes -------->
 #include "../headers/jugador.h"
+#include <semaphore.h>
 
 // functions definition -------->
 /**
- * @brief Crea una nueva instancia de un Jugador
- *
+ * @brief Construct a new Jugador:: Jugador object
+ * 
+ * @param semaforo 
+ * @param fifo_fd 
  */
-Jugador::Jugador(void) : tablero_jugador(), tablero_oponente()
+Jugador::Jugador(sem_t &semaforo, int fifo_fd) : tablero_jugador(), tablero_oponente()
 {
     this->tablero_listo = false;
 
@@ -16,6 +19,11 @@ Jugador::Jugador(void) : tablero_jugador(), tablero_oponente()
     {
         barcos.push_back(Barco(nombres_barcos[i], i + 1));
     }
+
+    this->fifo_fd = fifo_fd;
+
+    this->tiene_acceso = (sem_trywait(&semaforo) == 0);
+
 }
 
 /**
@@ -25,6 +33,7 @@ Jugador::Jugador(void) : tablero_jugador(), tablero_oponente()
  */
 void Jugador::muestra_tablero(bool del_jugador)
 {
+    std::cout << this->tiene_acceso << std::endl;
     del_jugador ? this->tablero_jugador.muestra_tablero() : this->tablero_oponente.muestra_tablero();
 }
 
@@ -155,3 +164,13 @@ void Jugador::colocar_barco()
         } while (op_barco != 2);
     }
 }
+
+
+
+void Jugador::cambia_acceso(){
+    this->tiene_acceso = !this->tiene_acceso;
+}; 
+
+bool Jugador::get_tiene_acceso(){
+    return this->tiene_acceso;
+};
