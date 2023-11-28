@@ -117,6 +117,22 @@ void Tablero::muestra_tablero()
     }
 }
 
-void Tablero::tira()
+char Tablero::tira(unsigned short x, unsigned short y)
 {
+    if(this->tablero[y][x] == '0' || this->tablero[y][x] == 'X'){
+        
+        if(this->tablero[y][x] == '0' ){
+            this->tablero[y][x] = 'X';
+        }
+        
+        return 'X';
+    }
+    else if(this->tablero[y][x] == 'O'){
+        return 'T';
+    }
+    else{
+        this->tablero[y][x] = 'O';
+    }
+    
+    return 'O';
 }

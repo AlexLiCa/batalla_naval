@@ -88,3 +88,17 @@ void Barco::cambiar_dir()
 {
     this->dir = !this->dir;
 }
+
+bool Barco::checa_coordenadas(unsigned short x, unsigned short y)
+{
+    for (std::pair<unsigned short, unsigned short> coordenada: this->posiciones) {
+        if(coordenada.first == y && coordenada.second == x){
+            return true;
+        }
+    }
+    return false;
+}
+
+void Barco::actualizar_vida(){
+    this->vida--;
+}

@@ -1,6 +1,8 @@
 // necessary includes -------->
 #include "../headers/jugador.h"
 #include <semaphore.h>
+#include <unistd.h>
+#include <utility>
 
 // functions definition -------->
 /**
@@ -174,3 +176,37 @@ void Jugador::cambia_acceso(){
 bool Jugador::get_tiene_acceso(){
     return this->tiene_acceso;
 };
+
+void Jugador::esperando_turno(sem_t &sem){
+
+    unsigned short tiro[2] = {100, 100};
+    ssize_t bytes_leidos = read(this->fifo_fd, tiro, sizeof(tiro));
+    sem_wait(&sem);
+
+    char resulado = this->tablero_jugador.tira(tiro[0], tiro[1]);
+    
+    if(resulado == 'O') {
+        for(Barco barco : this->barcos){
+            if(barco.checa_coordenadas(tiro[0], tiro[1])){
+                barco.actualizar_vida();
+                break;
+            }
+        }
+    }
+    else if(resulado == 'T') {
+        resulado = 'O';
+    }
+
+    ssize_t bytes_enviados = write(this->fifo_fd, &resulado, sizeof(resulado));
+
+
+    sem_post(&sem);
+    
+    sem_wait(&sem);
+
+    this->cambia_acceso();
+}
+
+void Jugador::tirar(){
+
+}

@@ -10,7 +10,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <thread>
-#include "./monitor.h"
 #include "./tablero.h"
 #include "./barco.h"
 
@@ -30,8 +29,11 @@ public:
     Jugador(sem_t &, int);
     void muestra_tablero(bool);
     void colocar_barco();
-    void tirar();
     
+    void tirar();
+    void finalizar_hilo();
+    void esperando_turno(sem_t &);
+
     void cambia_acceso();
     bool get_tiene_acceso(); 
 };
