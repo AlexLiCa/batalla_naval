@@ -24,6 +24,7 @@ private:
     bool tablero_listo;
     int fifo_fd;
     bool tiene_acceso;
+    const std::string &nombre;
     std::thread hilo;
 
 public:
@@ -31,6 +32,12 @@ public:
     void muestra_tablero(bool);
     void colocar_barco();
     void tirar();
+
+    void set_nombre(string);
+    void get_nombre(string);
+
+    void limpiar_archivo(const char *);
+    void escribirEnArchivo(const char *nombreArchivo, const char *mensaje);
 
     void cambia_acceso();
     bool get_tiene_acceso();

@@ -173,3 +173,36 @@ bool Jugador::get_tiene_acceso()
 {
     return this->tiene_acceso;
 };
+
+void Jugador::limpiar_archivo(const char *nombreArchivo)
+{
+    // Truncar el archivo para vaciarlo
+    int fileDescriptor = open(nombreArchivo, O_WRONLY | O_TRUNC | O_CREAT, 0666);
+
+    if (fileDescriptor == -1)
+    {
+        std::cerr << "Error al limpiar el archivo." << std::endl;
+        return;
+    }
+
+    close(fileDescriptor);
+}
+
+void Jugador::escribirEnArchivo(const char *nombreArchivo, const char *mensaje)
+{
+    int fileDescriptor = open(nombreArchivo, O_WRONLY | O_CREAT | O_APPEND, 0666);
+
+    if (fileDescriptor == -1)
+    {
+        std::cerr << "Error al abrir el archivo." << std::endl;
+        return;
+    }
+
+    // Escribir en el archivo en el formato "Nombre: texto"
+    write(fileDescriptor, this->nombre.c_str(), this->nombre.size() - 1);
+    write(fileDescriptor, ": ", 2);
+    write(fileDescriptor, mensaje, strlen(mensaje));
+    write(fileDescriptor, "\n", 1);
+
+    close(fileDescriptor);
+}
