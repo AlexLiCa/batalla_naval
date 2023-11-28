@@ -10,7 +10,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <thread>
-#include "./monitor.h"
+#include <fcntl.h>
+#include <cstring>
+#include <sys/mman.h>
 #include "./tablero.h"
 #include "./barco.h"
 
@@ -24,23 +26,37 @@ private:
     bool tablero_listo;
     int fifo_fd;
     bool tiene_acceso;
-    const std::string &nombre;
     std::thread hilo;
+    sem_t *sem;
+    int shm_fd;
+    void* memory_ptr;
+    void esperando_turno();
+    std::string nombre;
+    
+    struct mensaje {
+        int coordenadas[2];
+        char valor;
+    };
 
 public:
-    Jugador(sem_t &, int);
+    Jugador();
+    ~Jugador();
     void muestra_tablero(bool);
     void colocar_barco();
+    
     void tirar();
+    void iniciar_hilo();
+    void finalizar_hilo();
 
-    void set_nombre(string);
-    void get_nombre(string);
+    void cambia_acceso();
+    bool get_tiene_acceso(); 
+
+
+    void set_nombre(std::string);
+    void get_nombre(std::string);
 
     void limpiar_archivo(const char *);
     void escribirEnArchivo(const char *nombreArchivo, const char *mensaje);
-
-    void cambia_acceso();
-    bool get_tiene_acceso();
 };
 
 #endif // !JUGADOR_H

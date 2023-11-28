@@ -29,7 +29,7 @@ private:
 
 public:
     Barco(char, unsigned short);
-    void checa_coordenadas(unsigned short, unsigned short);
+    bool checa_coordenadas(unsigned short, unsigned short);
     void muestra_barco() const;
     void actualizar_vida();
     void cambiar_dir();
