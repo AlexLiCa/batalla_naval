@@ -17,6 +17,7 @@ public:
     Tablero(void);
     void muestra_tablero();
     char tira(unsigned short, unsigned short);
+    void tira(unsigned short, unsigned short, char);
     void coloca_barco(Barco &, unsigned short, unsigned short);
     bool checa_posicion(Barco &, unsigned short, unsigned short);
 };

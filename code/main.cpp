@@ -74,26 +74,13 @@ int menu()
 
 int main()
 {
-    sem_t *semaforo = sem_open("/semaforo_batalla_naval", O_CREAT, 0660, 1);
+    Jugador jugador;
+    bool primer_tiro = true;
 
-    if (semaforo == SEM_FAILED) {
-        cout << "Error al crear el semáforo" << endl;
-        semaforo = sem_open("/semaforo_batalla_naval", 0);
-    }
-
-    int r = mkfifo("./FIFO", 00660);
-    do
-    {
-        remove("./FIFO");
-        r = mkfifo("./FIFO", 00660);
-    } while (r == -1);
-    int fifo_fd = open("./FIFO", O_RDWR);
-
-    Jugador jugador(*semaforo, fifo_fd);
-
-
-    if(jugador.get_tiene_acceso()){
-
+    if(!jugador.get_tiene_acceso()){
+        std::cout << jugador.get_tiene_acceso() << std::endl;
+        jugador.iniciar_hilo();
+        primer_tiro = false;
     }
 
     int opc = 0;
@@ -123,7 +110,20 @@ int main()
             
 
             // La poseción de la sección critica se mantiene hasta haber hecho un tiro y recibido la respuesta 
+            std::cout << jugador.get_tiene_acceso() << std::endl;
+            
+            if(jugador.get_tiene_acceso()){
+                if(!primer_tiro){
+                    jugador.finalizar_hilo();
+                }
 
+                // Recupera entrada
+
+                jugador.tirar();
+            }
+            else {
+                std::cout << "\nEsperando turno" << std::endl;
+            }
 
             break;
         case 5:
@@ -135,12 +135,8 @@ int main()
 
     } while (opc != 5);
 
-
-    
-    sem_close(semaforo); /* Cerramos el semáforo porque no lo vamos a utilizar más */
-    sem_unlink("/semaforo_batalla_naval");
-    close(fifo_fd);
-    unlink("./FIFO");
-
+    if(jugador.get_tiene_acceso()){
+        jugador.finalizar_hilo();
+    }
     return 0;
 }

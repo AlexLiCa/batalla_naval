@@ -136,3 +136,8 @@ char Tablero::tira(unsigned short x, unsigned short y)
     
     return 'O';
 }
+
+void Tablero::tira(unsigned short x, unsigned short y, char valor)
+{
+    this->tablero[y][x] = valor;
+}
