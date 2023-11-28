@@ -1,66 +1,36 @@
 #include <iostream>
-#include <vector>
 #include <limits>
-#include "lib/headers/tablero.h"
-#include "lib/headers/barco.h"
+#include <fcntl.h>
+#include <semaphore.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include "lib/headers/jugador.h"
 
 using namespace std;
 
-/*Funcion que le pide al usuario que ingrese coordenadas, si las coordenadas no
-    son por numeros regresa una tupla con dos "-1"*/
-tuple<short, short> capturar_coordenadas()
-{
-    short x, y;
-
-    cout << "Ingresa dos valores (x y): ";
-    try
-    {
-        if (!(cin >> x >> y))
-        {
-            // Si la entrada no es válida, limpiar el estado de error y devolver una tupla con ambos valores igual a -1
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return make_tuple(-1, -1);
-            throw invalid_argument("\nNo son coordenadas validas. \n");
-        }
-    }
-    catch (const invalid_argument &e)
-    {
-        cerr << e.what() << endl;
-    }
-
-    // Devolver una tupla con los valores capturados
-    return make_tuple(x, y);
-}
-
-/*Funcion para capturar un entero corto
-    Recibe:
-        -Una cadena que se imprime en consola antes de capturar el dato*
-    Regresa:
-        El numero capturado
-        -1 en caso de que el usuario no ingrese un numero*/
 short captura_entero(string caption)
 {
-    short numero = -1;
+    short numero = 0;
     cout << caption;
     try
     {
-        cin >> numero;
-        // Limpiar el buffer de entrada
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         // Leer la opción del usuario
         if (cin.fail())
         {
-            numero = -1;
             // Limpiar el estado de error del flujo de entrada
             cin.clear();
             // Descartar la entrada incorrecta
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            throw invalid_argument("\nNo es una entrada válida. \n");
+            throw invalid_argument("No es una entrada válida. \n");
         }
+        cin >> numero;
+        // Limpiar el buffer de entrada
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
     catch (const invalid_argument &e)
     {
+        numero = -1;
         cerr << e.what() << endl;
     }
     return numero;
@@ -71,26 +41,28 @@ int menu()
     int opcion = 0;
 
     // Mostrar opciones del menú
+    cout << "\n"
+         << endl;
     cout << "1. Mostrar Tablero" << endl;
-    cout << "2. Agregar Barco" << endl;
-    cout << "3. Tira" << endl;
-    cout << "4. Listo" << endl;
-    cout << "Ingrese su opción: ";
+    cout << "2. Mostrar Tablero Oponente" << endl;
+    cout << "3. Agregar Barco" << endl;
+    cout << "4. Hacer un Tiro" << endl;
+    cout << "5. Salir" << endl;
+    cout << "Ingrese su opcion: ";
+
     try
     {
-        cin >> opcion;
-        // Limpiar el buffer de entrada
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
         // Leer la opción del usuario
-        if (cin.fail())
+        if (!(cin >> opcion))
         {
             // Limpiar el estado de error del flujo de entrada
             cin.clear();
             // Descartar la entrada incorrecta
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            opcion = 0;
-            throw invalid_argument("\nNo es una entrada válida. \n");
+            throw invalid_argument("No es una entrada valida. \n");
         }
+        // Limpiar el buffer de entrada
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
     catch (const invalid_argument &e)
     {
@@ -102,17 +74,29 @@ int menu()
 
 int main()
 {
+    sem_t *semaforo = sem_open("/semaforo_batalla_naval", O_CREAT, 0660, 1);
 
-    unsigned short num_barcos = 3, i = 0, opc = 0, tiro;
-    short barco_elegido, direccion = -1;
-    bool disponible;
-    tuple<short, short> coordenadas;
-    Tablero tablero_jugador;
-    vector<Barco> barcos_disponibles, barcos_usados;
-    barcos_disponibles.push_back(Barco('A', 1));
-    barcos_disponibles.push_back(Barco('B', 2));
-    barcos_disponibles.push_back(Barco('C', 3));
-    barcos_disponibles.push_back(Barco('D', 4));
+    if (semaforo == SEM_FAILED)
+    {
+        cout << "Error al crear el semáforo" << endl;
+        semaforo = sem_open("/semaforo_batalla_naval", 0);
+    }
+
+    int r = mkfifo("./FIFO", 00660);
+    do
+    {
+        remove("./FIFO");
+        r = mkfifo("./FIFO", 00660);
+    } while (r == -1);
+    int fifo_fd = open("./FIFO", O_RDWR);
+
+    Jugador jugador(*semaforo, fifo_fd);
+
+    if (jugador.get_tiene_acceso())
+    {
+    }
+
+    int opc = 0;
 
     do
     {
@@ -120,104 +104,39 @@ int main()
 
         switch (opc)
         {
-        case 0:
-            break;
         case 1:
-            cout << "Opción 1: Mostrar Tablero" << endl;
-            tablero_jugador.muestra_tablero();
+            jugador.muestra_tablero(true);
             break;
         case 2:
-            cout << "Opción 2: Agregar Barco" << endl;
-            /*Mostramos barcos_disponibles disponibles para agregar
-            En un futuro verificar tamaño de "barcos_disponibles" para ver si se puede
-                agregar alguno*/
-            for (size_t i = 0; i < barcos_disponibles.size(); i++)
-            {
-                cout << i << ":";
-                barcos_disponibles[i].muestra_barco();
-            }
-            /*Pedimos el indice del barco que se quiere agregar*/
-            barco_elegido = captura_entero("Barco a agregar: ");
-
-            /* Verificamso que exista el barco y que sea un indice valido */
-            if (barco_elegido >= 0 && barco_elegido < barcos_disponibles.size())
-            {
-                // cout << barcos_disponibles[barco_elegido].get_nombre() << endl;
-                direccion = captura_entero("Direccion del barco (0:Horizontal, 1:Vertical): ");
-                /*Pedimos las coordenadas a las que vamos a agregar el barco*/
-                coordenadas = capturar_coordenadas();
-                /*Verificamos si las coordenadas capturadas son validas*/
-                if (get<0>(coordenadas) > -1 && (direccion == 0 || direccion == 1))
-                {
-                    disponible = tablero_jugador.checa_posicion(get<0>(coordenadas), get<1>(coordenadas),
-                                                                barcos_disponibles[barco_elegido].get_longitud(), (direccion == 0) ? true : false);
-                    if (disponible)
-                    {
-                        tablero_jugador.coloca_barco(barcos_disponibles[barco_elegido], get<0>(coordenadas),
-                                                     get<1>(coordenadas), (direccion == 0) ? true : false);
-                        // tablero_jugador.muestra_tablero();
-                    }
-                    else
-                    {
-                        cout << "\nNo se puede agregar el barco en esa posicion\n"
-                             << endl;
-                    }
-                }
-                else
-                {
-                    cout << "\nCoordenadas o direccion Invalidas\n"
-                         << endl;
-                }
-            }
-            else
-            {
-                cout << "\nEl barco no existe \n"
-                     << endl;
-            }
+            jugador.muestra_tablero(false);
             break;
         case 3:
-            /*Discutir con Cancino como vamos a pasar los datos para ajustar la funcion tira, lo que se
-                recibira o hacer una funcion para tratar los datos que se recibidos*/
-            cout << "Opción 3: Tirar" << endl;
-            coordenadas = capturar_coordenadas();
-            if ((get<0>(coordenadas) > -1 && get<0>(coordenadas) < 10) && (get<1>(coordenadas) > -1 && get<1>(coordenadas) < 10))
-            {
-                tiro = tablero_jugador.tira(get<0>(coordenadas), get<1>(coordenadas));
-                if (tiro == 0)
-                {
-                    cout << "Fallaste" << endl;
-                }
-                else if (tiro == 1)
-                {
-                    cout << "Le diste a un barco !" << endl;
-                }
-                else if (tiro == 2)
-                {
-                    cout << "Ya no quedan mas barcos" << endl;
-                }
-                else if (tiro == 3)
-                {
-                    cout << "Ya habias tirado ahi" << endl;
-                }
-                else
-                {
-                    cout << "Parece que hubo un error" << endl;
-                }
-            }
-            else
-            {
-                cout << "Coordenadas fuera de rango" << endl;
-            }
-
+            cout << endl;
+            jugador.colocar_barco();
             break;
         case 4:
-            cout << "Opción 4: Listo" << endl;
+            // Tener un hilo con promesa y futuro
+            // Se debe crear un hilo con una función que intente entrar a una sección critica mediante un semaforo
+            // Una vez que se tenga acceso a la sección debe leer el contenido de la tubería
+            // Debe contestar si el resultado de la promesa fue un golpe o no
+            // Debe registrarse de vuelta la respuesta y regresar la sección critica al que contesto
+
+            // La poseción de la sección critica se mantiene hasta haber hecho un tiro y recibido la respuesta
+
+            break;
+        case 5:
             break;
         default:
-            cout << "Opción no válida. Inténtelo de nuevo." << endl;
+            cout << "Opcion invalida." << endl;
+            break;
         }
 
-    } while (opc != 4);
+    } while (opc != 5);
+
+    sem_close(semaforo); /* Cerramos el semáforo porque no lo vamos a utilizar más */
+    sem_unlink("/semaforo_batalla_naval");
+    close(fifo_fd);
+    unlink("./FIFO");
 
     return 0;
 }

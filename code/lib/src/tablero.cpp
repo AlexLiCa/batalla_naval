@@ -1,12 +1,15 @@
 // necessary includes -------->
 #include "../headers/tablero.h"
 
-using namespace std;
 // functions definition -------->
+/**
+ * @brief Constructor de un Tablero
+ *
+ */
 Tablero::Tablero()
 {
     this->tablero = {
-        {'D', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
+        {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
         {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
         {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
         {'0', '0', '0', '0', '0', '0', '0', '0', '0', '0'},
@@ -19,138 +22,108 @@ Tablero::Tablero()
     };
 }
 
-void Tablero::coloca_barco(Barco &barco, unsigned short x1, unsigned short y1, bool direccion)
+/**
+ * @brief Coloca un Barco en el tablero
+ *
+ * @param barco Referencia al barco que se quiere colocar
+ * @param x1 Posición Inicial en x
+ * @param y1 Posición Inicial en y
+ * @return Mensajes de error en caso de que la colocación falle
+ */
+void Tablero::coloca_barco(Barco &barco, unsigned short x1, unsigned short y1)
 {
-    /*Horizontal*/
-    if (direccion)
+    unsigned short pos_inicial = barco.get_direccion() ? y1 : x1;
+
+    for (unsigned short i = pos_inicial; i < pos_inicial + barco.get_longitud(); i++)
     {
-        for (unsigned short i = x1; i < x1 + barco.get_longitud(); i++)
+        if (barco.get_direccion())
         {
-            // cout << direccion << endl;
-            tablero[i][y1] = barco.get_nombre();
+            tablero[i][x1] = barco.get_nombre();
+            barco.agrega_coordenada(i, x1);
         }
-    }
-    /*Vertical*/
-    else
-    {
-        for (unsigned short i = y1; i < y1 + barco.get_longitud(); i++)
+        else
         {
-            tablero[x1][i] = barco.get_nombre();
+            tablero[y1][i] = barco.get_nombre();
+            barco.agrega_coordenada(y1, i);
         }
     }
 }
 
-bool Tablero::checa_posicion(unsigned short x, unsigned short y, unsigned short longitud, bool direccion)
+/**
+ * @brief Verifica si el barco se puede colocar dependiendo de una posición Inicial
+ *
+ * @param x Posición Inicial en x
+ * @param y Posición Inicial en y
+ * @param barco Referencia al barco que se quiere colocar
+ * @return true: Cuando el barco se puede colocar en la posicion indicada |
+ * @return false: Cuando el barco se sale del tablero o ya hay un barco ocupando la posición
+ */
+bool Tablero::checa_posicion(Barco &barco, unsigned short x, unsigned short y)
 {
-    bool valida = true;
-    if (direccion) // Si la dirección es verdadera (1), horizontal
-    {
-        // Verificar si las posiciones están dentro de los límites y son '0'
-        for (unsigned short i = x; i < x + longitud; ++i)
-        {
+    unsigned short pos_inicial = barco.get_direccion() ? y : x;
 
-            if (i >= 10 || i < 0)
-            {
-                valida = false;
-                break;
-            }
-            else if (tablero[i][y] != '0')
-            {
-                valida = false;
-                break;
-            }
-        }
-    }
-    else // Si la dirección es falsa (0), vertical
+    unsigned short pos_final = pos_inicial + barco.get_longitud();
+
+    if (pos_final >= this->tablero.size())
     {
-        // Verificar si las posiciones están dentro de los límites y son '0'
-        for (unsigned short i = y; i < y + longitud; ++i)
+        return false;
+    }
+
+    for (unsigned short i = pos_inicial; i < pos_final; ++i)
+    {
+        char valor_actual = barco.get_direccion() ? tablero[x][i] : tablero[i][y];
+
+        if (valor_actual != '0')
         {
-            if (i >= 10 || i < 0)
-            {
-                valida = false;
-                break;
-            }
-            else if (tablero[x][i] != '0')
-            {
-                valida = false;
-                break;
-            }
+            return false;
         }
     }
 
-    // Si se llega aquí, significa que las posiciones están disponibles
-    return valida;
+    return true;
 }
 
+/**
+ * @brief Imprime el tablero en la terminal
+ *
+ */
 void Tablero::muestra_tablero()
 {
-    for (short i = 0; i < 5; i++)
+    for (short i = 0; i < 50; i++)
     {
-        cout << "\n";
+        std::cout << "\n";
     }
 
-    string separador = "  +---------------------------------------+";
+    std::string separador = "  +---------------------------------------+";
 
-    cout << "  ";
-    for (short i = 0; i < 10; i++)
+    std::cout << "  ";
+    for (short i = 0; i < this->tablero.size(); i++)
     {
-        cout << setw(3) << i << " ";
+        std::cout << std::setw(3) << i << " ";
     }
-    cout << endl;
-    cout << separador << endl;
+    std::cout << std::endl;
+    std::cout << separador << std::endl;
+
     for (short int i = 0; i < this->tablero.size(); i++)
     {
-        cout << i << " | ";
+        std::cout << i << " | ";
         for (short int j = 0; j < this->tablero[i].size(); j++)
         {
-            cout << this->tablero[i][j] << " | ";
+            char valor_a_imprimir = this->tablero[i][j] != '0' ? this->tablero[i][j] : ' ';
+
+            std::cout << valor_a_imprimir << " | ";
         }
-        cout << endl;
-        cout << separador << endl;
+        std::cout << std::endl;
+        std::cout << separador << std::endl;
     }
 }
 
-unsigned short Tablero::barcos_restantes()
+bool Tablero::tira(short x, short y)
 {
-    int total = 0;
 
-    // Recorre la matriz y suma la cantidad de cada caracter
-    for (int i = 0; i < 10; ++i)
+    if (tablero[x][y] == 'X' || tablero[x][y] == 'O' || tablero[x][y] == '0')
     {
-        for (int j = 0; j < 10; ++j)
-        {
-            if (tablero[i][j] == 'A' || tablero[i][j] == 'B' || tablero[i][j] == 'C' || tablero[i][j] == 'D')
-            {
-                total++;
-            }
-        }
+        return false;
     }
-    return total;
-}
 
-unsigned short Tablero::tira(short x, short y)
-{
-    unsigned short vidas = barcos_restantes(), respuesta;
-    cout << "Vidas restantes: " << vidas << endl;
-
-    if (tablero[x][y] == 'A' || tablero[x][y] == 'B' || tablero[x][y] == 'C' || tablero[x][y] == 'D')
-    {
-        tablero[x][y] = 'E';
-        vidas = barcos_restantes();
-        respuesta = 1;
-    }
-    else if (tablero[x][y] == 'X' || tablero[x][y] == 'E')
-    {
-        respuesta = 3;
-    }
-    else
-    {
-        tablero[x][y] = 'X';
-        respuesta = 0;
-    }
-    if (vidas == 0){
-        respuesta = 2;
-    }
-    return respuesta;
+    return true;
 }
