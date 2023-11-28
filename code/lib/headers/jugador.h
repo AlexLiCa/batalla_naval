@@ -56,7 +56,7 @@ public:
     void get_nombre(std::string);
 
     void limpiar_archivo(const char *);
-    void escribirEnArchivo(const char *nombreArchivo, const char *mensaje);
+    void escribirEnArchivo(mensaje);
 };
 
 #endif // !JUGADOR_H

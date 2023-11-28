@@ -1,5 +1,6 @@
 // necessary includes -------->
 #include "../headers/jugador.h"
+#include <cstring>
 
 #define SEM_NAME "/semaforo_batalla_naval"
 #define SHM_NAME "/shm_batalla_naval"
@@ -224,9 +225,9 @@ void Jugador::limpiar_archivo(const char *nombreArchivo)
     close(fileDescriptor);
 }
 
-void Jugador::escribirEnArchivo(const char *nombreArchivo, const char *mensaje)
+void Jugador::escribirEnArchivo(mensaje tiro_info)
 {
-    int fileDescriptor = open(nombreArchivo, O_WRONLY | O_CREAT | O_APPEND, 0666);
+    int fileDescriptor = open("Historial.txt", O_WRONLY | O_CREAT | O_APPEND, 0666);
 
     if (fileDescriptor == -1)
     {
@@ -234,10 +235,19 @@ void Jugador::escribirEnArchivo(const char *nombreArchivo, const char *mensaje)
         return;
     }
 
+    std::string x = std::to_string(tiro_info.coordenadas[0]);
+    std::string y = std::to_string(tiro_info.coordenadas[1]);
+    std::string valor = std::to_string(tiro_info.valor);
+
     // Escribir en el archivo en el formato "Nombre: texto"
     write(fileDescriptor, this->nombre.c_str(), this->nombre.size() - 1);
-    write(fileDescriptor, ": ", 2);
-    write(fileDescriptor, mensaje, strlen(mensaje));
+    write(fileDescriptor, "x: ", 3);
+    write(fileDescriptor, x.c_str(), x.size() - 1);
+    write(fileDescriptor, "y: ", 3);
+    write(fileDescriptor, y.c_str(), y.size() - 1);
+    write(fileDescriptor, "\n", 1);
+    write(fileDescriptor, "valor: ", 6);
+    write(fileDescriptor, valor.c_str(), valor.size() - 1);
     write(fileDescriptor, "\n", 1);
 
     close(fileDescriptor);
@@ -309,6 +319,8 @@ void Jugador::tirar(){
     this->tablero_oponente.tira(recibido->coordenadas[0], recibido->coordenadas[1], recibido->valor);
 
     std::cout << "Respuesta: " << recibido->valor << std::endl;
+
+    this->escribirEnArchivo(*recibido);
      
     sem_post(this->sem);
 
