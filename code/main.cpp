@@ -86,7 +86,6 @@ int main()
 
     do
     {
-        cout << "Entrando al menu" << endl;
         opc = menu();
         switch (opc)
         {
@@ -108,6 +107,7 @@ int main()
                     }
                     
                     jugador.tirar();
+                    cout << "Termine de Tirar" << endl;
                 }
                 else {
                     std::cout << "\nEsperando turno";
@@ -116,6 +116,8 @@ int main()
             // else {
             //     std::cout << "\nTermina de llenar tu tablero";
             // }
+
+            primer_tiro = false;
 
             break;
         case 5:

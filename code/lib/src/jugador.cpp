@@ -1,7 +1,5 @@
 // necessary includes -------->
 #include "../headers/jugador.h"
-#include <cstring>
-#include <semaphore.h>
 
 #define SEM_NAME "/semaforo_batalla_naval"
 #define SHM_NAME "/shm_batalla_naval"
@@ -59,7 +57,7 @@ Jugador::~Jugador(){
     close(this->shm_fd);
     shm_unlink(SHM_NAME);
 
-    sem_close(this->sem); /* Cerramos el semáforo porque no lo vamos a utilizar más */
+    sem_close(this->sem);
     sem_unlink(SEM_NAME);
 }
 
@@ -265,10 +263,6 @@ void Jugador::escribirEnArchivo(mensaje tiro_info)
 
 void Jugador::esperando_turno(){
 
-    std::cout << "Hilo Iniciado" << std::endl;
-    
-    std::cout << "Esperando en Hilo" << std::endl;
-
     sem_wait(this->sem);
 
     mensaje* recibido = static_cast<mensaje*>(this->memory_ptr);
@@ -294,14 +288,11 @@ void Jugador::esperando_turno(){
     sem_post(this->sem);
 
     sleep(2);
-
-    std::cout << "Enviando respuesa" << std::endl;
     
     sem_wait(this->sem);
 
     this->cambia_acceso();
 
-    std::cout << "\nEl Otro Jugador ha terminado su turno" << std::endl;
 }
 
 void Jugador::tirar(){
@@ -318,42 +309,30 @@ void Jugador::tirar(){
 
     sleep(1);
 
-    std::cout << "Esperando respuesta" << std::endl;
-
     sem_wait(this->sem);
-
-    std::cout << "Respuesta recibida" << std::endl;
 
     mensaje* recibido = static_cast<mensaje*>(this->memory_ptr);
 
     this->tablero_oponente.tira(recibido->coordenadas[0], recibido->coordenadas[1], recibido->valor);
 
-    std::cout << "Respuesta: " << recibido->valor << std::endl;
+    std::cout << (recibido->valor == 'X'? "Le diste" : "Fallaste") << std::endl;
 
     this->escribirEnArchivo(*recibido);
-
-    std::cout << "Tiro registrado" << std::endl;
     
     sem_post(this->sem);
-
-    std::cout << "Semaforo Libreado" << std::endl;
 
     this->cambia_acceso();
 
     sleep(2);
 
-    std::cout << "Iniciando hilo" << std::endl; 
-
     this->iniciar_hilo();
 }
 
 void Jugador::finalizar_hilo(bool exit = false){
-    this->hilo.join();
-
-    std::cout << "hilo terminado" << std::endl;
+    if (this->hilo.joinable()) {
+        this->hilo.join();
+    }
 }
-
-
 
 void Jugador::iniciar_hilo(){
     this->hilo = std::thread (&Jugador::esperando_turno, this);
