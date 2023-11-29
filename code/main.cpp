@@ -106,6 +106,10 @@ int main()
             jugador.resumen_barcos();
             break;
         case 5:
+            cout << endl;
+            jugador.posiciones_barcos();
+            break;
+        case 6:
             // if(jugador.get_tablero_listo()){
             if (jugador.get_tiene_acceso())
             {
@@ -129,14 +133,14 @@ int main()
             primer_tiro = false;
 
             break;
-        case 6:
+        case 7:
             break;
         default:
             cout << "Opcion invalida." << endl;
             break;
         }
 
-    } while (opc != 6);
+    } while (opc != 7);
 
     return 0;
 }

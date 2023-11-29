@@ -110,3 +110,8 @@ unsigned short Barco::get_vida()
 {
     return this->vida;
 }
+
+std::vector<std::pair<unsigned short, unsigned short>> Barco::get_posiciones()
+{
+    return this->posiciones;
+}

@@ -367,3 +367,15 @@ void Jugador::resumen_barco()
         std::cout << barco.get_nombre() << " -- " << (barco.get_vida() > 0 ? "Vidas Restante: " : "Hundido") << (barco.get_vida() > 0 ? barco.get_vida() : "") << std::endl;
     }
 }
+
+void Jugador::posiciones_barcos()
+{
+    for (Barco barco : this->barcos)
+    {
+        std::cout << barco.get_nombre() << " -- Posiciones" << std::endl;
+        for (std::pair<unsigned short, unsigned short> pair : barco.get_posiciones())
+        {
+            std::cout << "x: " << pair.second << " | y: " << pair.first << endl;
+        }
+    }
+}

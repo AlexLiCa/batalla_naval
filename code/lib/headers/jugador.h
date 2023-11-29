@@ -45,6 +45,7 @@ public:
     void muestra_tablero(bool);
     void colocar_barco();
     void resumen_barco();
+    void posiciones_barcos();
 
     void tirar();
     void iniciar_hilo();
