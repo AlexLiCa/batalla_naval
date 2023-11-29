@@ -29,11 +29,12 @@ private:
     std::thread hilo;
     sem_t *sem;
     int shm_fd;
-    void* memory_ptr;
+    void *memory_ptr;
     void esperando_turno();
     std::string nombre;
-    
-    struct mensaje {
+
+    struct mensaje
+    {
         int coordenadas[2];
         char valor;
     };
@@ -43,14 +44,14 @@ public:
     ~Jugador();
     void muestra_tablero(bool);
     void colocar_barco();
-    
+    void resumen_barco();
+
     void tirar();
     void iniciar_hilo();
     void finalizar_hilo(bool);
 
     void cambia_acceso();
-    bool get_tiene_acceso(); 
-
+    bool get_tiene_acceso();
 
     void set_nombre(std::string);
     void get_nombre(std::string);

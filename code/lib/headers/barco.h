@@ -38,6 +38,7 @@ public:
     bool get_direccion();
     void agrega_coordenada(unsigned short, unsigned short);
     bool get_colocado();
+    unsigned short get_vida();
 };
 
 #endif // !BARCO_H

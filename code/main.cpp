@@ -46,8 +46,9 @@ int menu()
     cout << "1. Mostrar Tablero" << endl;
     cout << "2. Mostrar Tablero Oponente" << endl;
     cout << "3. Agregar Barco" << endl;
-    cout << "4. Hacer un Tiro" << endl;
-    cout << "5. Salir" << endl;
+    cout << "4. Resumen de Barcos" << endl;
+    cout << "5. Hacer un Tiro" << endl;
+    cout << "6. Salir" << endl;
     cout << "Ingrese su opcion: ";
 
     try
@@ -77,7 +78,8 @@ int main()
     Jugador jugador;
     bool primer_tiro = true;
 
-    if(!jugador.get_tiene_acceso()){
+    if (!jugador.get_tiene_acceso())
+    {
         jugador.iniciar_hilo();
         primer_tiro = false;
     }
@@ -100,18 +102,25 @@ int main()
             jugador.colocar_barco();
             break;
         case 4:
+            cout << endl;
+            jugador.resumen_barcos();
+            break;
+        case 5:
             // if(jugador.get_tablero_listo()){
-                if(jugador.get_tiene_acceso()){
-                    if(!primer_tiro){
-                        jugador.finalizar_hilo(false);
-                    }
-                    
-                    jugador.tirar();
-                    cout << "Termine de Tirar" << endl;
+            if (jugador.get_tiene_acceso())
+            {
+                if (!primer_tiro)
+                {
+                    jugador.finalizar_hilo(false);
                 }
-                else {
-                    std::cout << "\nEsperando turno";
-                }
+
+                jugador.tirar();
+                cout << "Termine de Tirar" << endl;
+            }
+            else
+            {
+                std::cout << "\nEsperando turno";
+            }
             // }
             // else {
             //     std::cout << "\nTermina de llenar tu tablero";
@@ -120,14 +129,14 @@ int main()
             primer_tiro = false;
 
             break;
-        case 5:
+        case 6:
             break;
         default:
             cout << "Opcion invalida." << endl;
             break;
         }
 
-    } while (opc != 5);
+    } while (opc != 6);
 
     return 0;
 }

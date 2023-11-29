@@ -8,7 +8,7 @@
 /**
  * @brief Construct a new Jugador:: Jugador object
  *
- * @param fifo_fd 
+ * @param fifo_fd
  */
 Jugador::Jugador() : tablero_jugador(), tablero_oponente()
 {
@@ -22,38 +22,45 @@ Jugador::Jugador() : tablero_jugador(), tablero_oponente()
     }
 
     this->sem = sem_open(SEM_NAME, 0);
-    
-    if (this->sem == SEM_FAILED) {  
+
+    if (this->sem == SEM_FAILED)
+    {
         this->sem = sem_open(SEM_NAME, O_CREAT, 0660, 1);
     }
 
     this->tiene_acceso = (sem_trywait(this->sem) == 0);
 
-    this->nombre = this->tiene_acceso? "Jugador 1": "Jugador 2";
+    this->nombre = this->tiene_acceso ? "Jugador 1" : "Jugador 2";
 
-    if(this->tiene_acceso){
+    if (this->tiene_acceso)
+    {
         this->shm_fd = shm_open(SHM_NAME, O_CREAT | O_RDWR, 0660);
     }
-    else {
+    else
+    {
         this->shm_fd = shm_open(SHM_NAME, O_RDWR, 0660);
     }
 
-    if (this->shm_fd == -1) {
+    if (this->shm_fd == -1)
+    {
         perror("Error al crear/abrir la memoria compartida");
     }
 
-    if (ftruncate(this->shm_fd, sizeof(mensaje)) == -1) {
+    if (ftruncate(this->shm_fd, sizeof(mensaje)) == -1)
+    {
         perror("Error al configurar el tamaño de la memoria compartida");
     }
 
     this->memory_ptr = mmap(NULL, sizeof(mensaje), PROT_READ | PROT_WRITE, MAP_SHARED, this->shm_fd, 0);
-    
-    if (this->memory_ptr == MAP_FAILED) {
+
+    if (this->memory_ptr == MAP_FAILED)
+    {
         std::cout << "Error while mapping shared memory!" << std::endl;
     }
 }
 
-Jugador::~Jugador(){
+Jugador::~Jugador()
+{
     close(this->shm_fd);
     shm_unlink(SHM_NAME);
 
@@ -184,7 +191,8 @@ void Jugador::colocar_barco()
                 do
                 {
                     coordenadas = capturar_coordenadas();
-                    if(!this->tablero_jugador.checa_posicion(this->barcos[barco_index], coordenadas.first, coordenadas.second)){
+                    if (!this->tablero_jugador.checa_posicion(this->barcos[barco_index], coordenadas.first, coordenadas.second))
+                    {
                         std::cout << "Alguna de las coordenadas ya esta ocupada" << std::endl;
                     }
                 } while (!this->tablero_jugador.checa_posicion(this->barcos[barco_index], coordenadas.first, coordenadas.second));
@@ -201,7 +209,8 @@ void Jugador::colocar_barco()
 
         } while (op_barco != 2);
 
-        if(barcos_colocados == this->barcos.size() - 1){
+        if (barcos_colocados == this->barcos.size() - 1)
+        {
             this->tablero_listo = true;
         }
     }
@@ -261,25 +270,30 @@ void Jugador::escribirEnArchivo(mensaje tiro_info)
     close(fileDescriptor);
 }
 
-void Jugador::esperando_turno(){
+void Jugador::esperando_turno()
+{
 
     sem_wait(this->sem);
 
-    mensaje* recibido = static_cast<mensaje*>(this->memory_ptr);
+    mensaje *recibido = static_cast<mensaje *>(this->memory_ptr);
 
     std::cout << "x= " << recibido->coordenadas[0] << ", y= " << recibido->coordenadas[1] << std::endl;
 
     char resulado = this->tablero_jugador.tira(recibido->coordenadas[0], recibido->coordenadas[1]);
-    
-    if(resulado == 'O') {
-        for(Barco barco : this->barcos){
-            if(barco.checa_coordenadas(recibido->coordenadas[0], recibido->coordenadas[1])){
+
+    if (resulado == 'O')
+    {
+        for (Barco barco : this->barcos)
+        {
+            if (barco.checa_coordenadas(recibido->coordenadas[0], recibido->coordenadas[1]))
+            {
                 barco.actualizar_vida();
                 break;
             }
         }
     }
-    else if(resulado == 'T') {
+    else if (resulado == 'T')
+    {
         resulado = 'O';
     }
 
@@ -288,19 +302,19 @@ void Jugador::esperando_turno(){
     sem_post(this->sem);
 
     sleep(2);
-    
+
     sem_wait(this->sem);
 
     this->cambia_acceso();
-
 }
 
-void Jugador::tirar(){
+void Jugador::tirar()
+{
     // leer coordenadas
-    mensaje* enviado = static_cast<mensaje*>(this->memory_ptr);
-    
+    mensaje *enviado = static_cast<mensaje *>(this->memory_ptr);
+
     std::pair<unsigned short, unsigned short> coordenadas = capturar_coordenadas();
-    
+
     enviado->coordenadas[0] = coordenadas.first;
     enviado->coordenadas[1] = coordenadas.second;
     enviado->valor = ' ';
@@ -311,14 +325,14 @@ void Jugador::tirar(){
 
     sem_wait(this->sem);
 
-    mensaje* recibido = static_cast<mensaje*>(this->memory_ptr);
+    mensaje *recibido = static_cast<mensaje *>(this->memory_ptr);
 
     this->tablero_oponente.tira(recibido->coordenadas[0], recibido->coordenadas[1], recibido->valor);
 
-    std::cout << (recibido->valor == 'X'? "Le diste" : "Fallaste") << std::endl;
+    std::cout << (recibido->valor == 'X' ? "Le diste" : "Fallaste") << std::endl;
 
     this->escribirEnArchivo(*recibido);
-    
+
     sem_post(this->sem);
 
     this->cambia_acceso();
@@ -328,16 +342,28 @@ void Jugador::tirar(){
     this->iniciar_hilo();
 }
 
-void Jugador::finalizar_hilo(bool exit = false){
-    if (this->hilo.joinable()) {
+void Jugador::finalizar_hilo(bool exit = false)
+{
+    if (this->hilo.joinable())
+    {
         this->hilo.join();
     }
 }
 
-void Jugador::iniciar_hilo(){
-    this->hilo = std::thread (&Jugador::esperando_turno, this);
+void Jugador::iniciar_hilo()
+{
+    this->hilo = std::thread(&Jugador::esperando_turno, this);
 }
 
-bool Jugador::get_tablero_listo(){
+bool Jugador::get_tablero_listo()
+{
     return this->tablero_listo;
+}
+
+void Jugador::resumen_barco()
+{
+    for (Barco barco : this->barcos)
+    {
+        std::cout << barco.get_nombre() << " -- " << (barco.get_vida() > 0 ? "Vidas Restante: " : "Hundido") << (barco.get_vida() > 0 ? barco.get_vida() : "") << std::endl;
+    }
 }
