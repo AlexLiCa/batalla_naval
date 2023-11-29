@@ -47,8 +47,9 @@ int menu()
     cout << "2. Mostrar Tablero Oponente" << endl;
     cout << "3. Agregar Barco" << endl;
     cout << "4. Resumen de Barcos" << endl;
-    cout << "5. Hacer un Tiro" << endl;
-    cout << "6. Salir" << endl;
+    cout << "5. Posiciones de los Barcos" << endl;
+    cout << "6. Hacer un Tiro" << endl;
+    cout << "7. Salir" << endl;
     cout << "Ingrese su opcion: ";
 
     try
