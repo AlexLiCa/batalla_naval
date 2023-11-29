@@ -64,14 +64,14 @@ bool Tablero::checa_posicion(Barco &barco, unsigned short x, unsigned short y)
 
     unsigned short pos_final = pos_inicial + barco.get_longitud();
 
-    if (pos_final >= this->tablero.size())
+    if (pos_final > this->tablero.size())
     {
         return false;
     }
 
     for (unsigned short i = pos_inicial; i < pos_final; ++i)
     {
-        char valor_actual = barco.get_direccion() ? tablero[x][i] : tablero[i][y];
+        char valor_actual = barco.get_direccion() ? this->tablero[i][x] : this->tablero[y][i];
 
         if (valor_actual != '0')
         {

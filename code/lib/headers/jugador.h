@@ -46,7 +46,7 @@ public:
     
     void tirar();
     void iniciar_hilo();
-    void finalizar_hilo();
+    void finalizar_hilo(bool);
 
     void cambia_acceso();
     bool get_tiene_acceso(); 
@@ -57,6 +57,8 @@ public:
 
     void limpiar_archivo(const char *);
     void escribirEnArchivo(mensaje);
+
+    bool get_tablero_listo();
 };
 
 #endif // !JUGADOR_H

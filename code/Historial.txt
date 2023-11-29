@@ -1,0 +1,108 @@
+Jugador 1
+x: 3
+y: 6
+valor:X
+Jugador 2
+x: 4
+y: 7
+valor: 
+Jugador 2
+x: 5
+y: 7
+valor: 
+Jugador 1
+x: 3
+y: 6
+valor:X
+Jugador 1
+x: 4
+y: 6
+valor:X
+Jugador 1
+x: 4
+y: 7
+valor: 
+Jugador 1
+x: 5
+y: 7
+valor:X
+Jugador 1
+x: 5
+y: 7
+valor:X
+Jugador 1
+x: 3
+y: 6
+valor: 
+Jugador 1
+x: 3
+y: 5
+valor:X
+Jugador 1
+x: 5
+y: 7
+valor:X
+Jugador 1
+x: 1
+y: 3
+valor:O
+Jugador 1
+x: 2
+y: 5
+valor:X
+Jugador 2
+x: 1
+y: 1
+valor:O
+Jugador 1
+x: 0
+y: 9
+valor:X
+Jugador 1
+x: 2
+y: 7
+valor:X
+Jugador 2
+x: 5
+y: 8
+valor:X
+Jugador 1
+x: 2
+y: 7
+valor:X
+Jugador 1
+x: 2
+y: 5
+valor:X
+Jugador 2
+x: 5
+y: 8
+valor:X
+Jugador 1
+x: 2
+y: 7
+valor:X
+Jugador 1
+x: 3
+y: 6
+valor:X
+Jugador 2
+x: 6
+y: 3
+valor:X
+Jugador 1
+x: 3
+y: 6
+valor:X
+Jugador 1
+x: 3
+y: 5
+valor:X
+Jugador 2
+x: 4
+y: 7
+valor:X
+Jugador 1
+x: 3
+y: 6
+valor:X

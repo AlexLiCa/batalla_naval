@@ -78,7 +78,6 @@ int main()
     bool primer_tiro = true;
 
     if(!jugador.get_tiene_acceso()){
-        std::cout << jugador.get_tiene_acceso() << std::endl;
         jugador.iniciar_hilo();
         primer_tiro = false;
     }
@@ -87,8 +86,8 @@ int main()
 
     do
     {
+        cout << "Entrando al menu" << endl;
         opc = menu();
-
         switch (opc)
         {
         case 1:
@@ -102,28 +101,21 @@ int main()
             jugador.colocar_barco();
             break;
         case 4:
-            // Tener un hilo con promesa y futuro
-            // Se debe crear un hilo con una función que intente entrar a una sección critica mediante un semaforo
-            // Una vez que se tenga acceso a la sección debe leer el contenido de la tubería
-            // Debe contestar si el resultado de la promesa fue un golpe o no
-            // Debe registrarse de vuelta la respuesta y regresar la sección critica al que contesto 
-            
-
-            // La poseción de la sección critica se mantiene hasta haber hecho un tiro y recibido la respuesta 
-            std::cout << jugador.get_tiene_acceso() << std::endl;
-            
-            if(jugador.get_tiene_acceso()){
-                if(!primer_tiro){
-                    jugador.finalizar_hilo();
+            // if(jugador.get_tablero_listo()){
+                if(jugador.get_tiene_acceso()){
+                    if(!primer_tiro){
+                        jugador.finalizar_hilo(false);
+                    }
+                    
+                    jugador.tirar();
                 }
-
-                // Recupera entrada
-
-                jugador.tirar();
-            }
-            else {
-                std::cout << "\nEsperando turno" << std::endl;
-            }
+                else {
+                    std::cout << "\nEsperando turno";
+                }
+            // }
+            // else {
+            //     std::cout << "\nTermina de llenar tu tablero";
+            // }
 
             break;
         case 5:
@@ -135,8 +127,5 @@ int main()
 
     } while (opc != 5);
 
-    if(jugador.get_tiene_acceso()){
-        jugador.finalizar_hilo();
-    }
     return 0;
 }

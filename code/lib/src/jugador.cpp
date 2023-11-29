@@ -1,6 +1,7 @@
 // necessary includes -------->
 #include "../headers/jugador.h"
 #include <cstring>
+#include <semaphore.h>
 
 #define SEM_NAME "/semaforo_batalla_naval"
 #define SHM_NAME "/shm_batalla_naval"
@@ -185,6 +186,9 @@ void Jugador::colocar_barco()
                 do
                 {
                     coordenadas = capturar_coordenadas();
+                    if(!this->tablero_jugador.checa_posicion(this->barcos[barco_index], coordenadas.first, coordenadas.second)){
+                        std::cout << "Alguna de las coordenadas ya esta ocupada" << std::endl;
+                    }
                 } while (!this->tablero_jugador.checa_posicion(this->barcos[barco_index], coordenadas.first, coordenadas.second));
 
                 this->tablero_jugador.coloca_barco(this->barcos[barco_index], coordenadas.first, coordenadas.second);
@@ -198,6 +202,10 @@ void Jugador::colocar_barco()
             }
 
         } while (op_barco != 2);
+
+        if(barcos_colocados == this->barcos.size() - 1){
+            this->tablero_listo = true;
+        }
     }
 }
 
@@ -237,17 +245,19 @@ void Jugador::escribirEnArchivo(mensaje tiro_info)
 
     std::string x = std::to_string(tiro_info.coordenadas[0]);
     std::string y = std::to_string(tiro_info.coordenadas[1]);
-    std::string valor = std::to_string(tiro_info.valor);
+    char valor[] = {tiro_info.valor};
 
     // Escribir en el archivo en el formato "Nombre: texto"
-    write(fileDescriptor, this->nombre.c_str(), this->nombre.size() - 1);
+    write(fileDescriptor, this->nombre.c_str(), this->nombre.size());
+    write(fileDescriptor, "\n", 1);
     write(fileDescriptor, "x: ", 3);
-    write(fileDescriptor, x.c_str(), x.size() - 1);
+    write(fileDescriptor, x.c_str(), x.size());
+    write(fileDescriptor, "\n", 1);
     write(fileDescriptor, "y: ", 3);
-    write(fileDescriptor, y.c_str(), y.size() - 1);
+    write(fileDescriptor, y.c_str(), y.size());
     write(fileDescriptor, "\n", 1);
     write(fileDescriptor, "valor: ", 6);
-    write(fileDescriptor, valor.c_str(), valor.size() - 1);
+    write(fileDescriptor, valor, 1);
     write(fileDescriptor, "\n", 1);
 
     close(fileDescriptor);
@@ -257,8 +267,8 @@ void Jugador::esperando_turno(){
 
     std::cout << "Hilo Iniciado" << std::endl;
     
-    std::cout << "Esperando" << std::endl;
-    
+    std::cout << "Esperando en Hilo" << std::endl;
+
     sem_wait(this->sem);
 
     mensaje* recibido = static_cast<mensaje*>(this->memory_ptr);
@@ -283,7 +293,7 @@ void Jugador::esperando_turno(){
 
     sem_post(this->sem);
 
-    sleep(1);
+    sleep(2);
 
     std::cout << "Enviando respuesa" << std::endl;
     
@@ -321,21 +331,34 @@ void Jugador::tirar(){
     std::cout << "Respuesta: " << recibido->valor << std::endl;
 
     this->escribirEnArchivo(*recibido);
-     
+
+    std::cout << "Tiro registrado" << std::endl;
+    
     sem_post(this->sem);
 
+    std::cout << "Semaforo Libreado" << std::endl;
+
     this->cambia_acceso();
+
+    sleep(2);
+
+    std::cout << "Iniciando hilo" << std::endl; 
 
     this->iniciar_hilo();
 }
 
-void Jugador::finalizar_hilo(){
-    
+void Jugador::finalizar_hilo(bool exit = false){
     this->hilo.join();
 
     std::cout << "hilo terminado" << std::endl;
 }
 
+
+
 void Jugador::iniciar_hilo(){
     this->hilo = std::thread (&Jugador::esperando_turno, this);
+}
+
+bool Jugador::get_tablero_listo(){
+    return this->tablero_listo;
 }
