@@ -44,7 +44,7 @@ public:
     ~Jugador();
     void muestra_tablero(bool);
     void colocar_barco();
-    void resumen_barco();
+    void resumen_barcos();
     void posiciones_barcos();
 
     void tirar();

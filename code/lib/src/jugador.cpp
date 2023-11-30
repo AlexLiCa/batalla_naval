@@ -360,11 +360,18 @@ bool Jugador::get_tablero_listo()
     return this->tablero_listo;
 }
 
-void Jugador::resumen_barco()
+void Jugador::resumen_barcos()
 {
     for (Barco barco : this->barcos)
     {
-        std::cout << barco.get_nombre() << " -- " << (barco.get_vida() > 0 ? "Vidas Restante: " : "Hundido") << (barco.get_vida() > 0 ? barco.get_vida() : "") << std::endl;
+        if(barco.get_vida() > 0)
+        {
+            std::cout << barco.get_nombre() << " -- " << "Vidas Restante: " << barco.get_vida() << std::endl;   
+        }
+        else 
+        {
+            std::cout << barco.get_nombre() << " -- " << "Hundido" << std::endl;
+        }
     }
 }
 
@@ -375,7 +382,8 @@ void Jugador::posiciones_barcos()
         std::cout << barco.get_nombre() << " -- Posiciones" << std::endl;
         for (std::pair<unsigned short, unsigned short> pair : barco.get_posiciones())
         {
-            std::cout << "x: " << pair.second << " | y: " << pair.first << endl;
+            std::cout << "x: " << pair.second << " | y: " << pair.first << std::endl;
         }
+        std::cout << std::endl;
     }
 }
