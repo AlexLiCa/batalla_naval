@@ -59,6 +59,10 @@ Jugador::Jugador() : tablero_jugador(), tablero_oponente()
     }
 }
 
+/**
+ * @brief Destroy the Jugador:: Jugador object
+ * 
+ */
 Jugador::~Jugador()
 {
     close(this->shm_fd);
@@ -216,16 +220,31 @@ void Jugador::colocar_barco()
     }
 }
 
+/**
+ * @brief Alterna la variable de acceso al semaforo
+ * 
+ */
 void Jugador::cambia_acceso()
 {
     this->tiene_acceso = !this->tiene_acceso;
 };
 
+/**
+ * @brief Recupera la variable de acceso al semaforo
+ * 
+ * @return true cuando tiene acceso | 
+ * @return false cuando no se tiene acceso
+ */
 bool Jugador::get_tiene_acceso()
 {
     return this->tiene_acceso;
 };
 
+/**
+ * @brief Limpia el archivo de historial
+ * 
+ * @param nombreArchivo 
+ */
 void Jugador::limpiar_archivo(const char *nombreArchivo)
 {
     // Truncar el archivo para vaciarlo
@@ -240,6 +259,11 @@ void Jugador::limpiar_archivo(const char *nombreArchivo)
     close(fileDescriptor);
 }
 
+/**
+ * @brief Escribe la información en el historial
+ * 
+ * @param tiro_info Estructura que lleva la información del tiro
+ */
 void Jugador::escribirEnArchivo(mensaje tiro_info)
 {
     int fileDescriptor = open("Historial.txt", O_WRONLY | O_CREAT | O_APPEND, 0666);
@@ -255,13 +279,13 @@ void Jugador::escribirEnArchivo(mensaje tiro_info)
     char valor[] = {tiro_info.valor};
 
     // Escribir en el archivo en el formato "Nombre: texto"
-    write(fileDescriptor, this->nombre.c_str(), this->nombre.size());
+    write(fileDescriptor, this->nombre.c_str(), this->nombre.size() + 1);
     write(fileDescriptor, "\n", 1);
     write(fileDescriptor, "x: ", 3);
-    write(fileDescriptor, x.c_str(), x.size());
+    write(fileDescriptor, x.c_str(), x.size() + 1);
     write(fileDescriptor, "\n", 1);
     write(fileDescriptor, "y: ", 3);
-    write(fileDescriptor, y.c_str(), y.size());
+    write(fileDescriptor, y.c_str(), y.size() + 1);
     write(fileDescriptor, "\n", 1);
     write(fileDescriptor, "valor: ", 6);
     write(fileDescriptor, valor, 1);
@@ -270,52 +294,70 @@ void Jugador::escribirEnArchivo(mensaje tiro_info)
     close(fileDescriptor);
 }
 
-void Jugador::esperando_turno()
+/**
+ * @brief Funcion ejecutada por el hilo para esperar a que el otro jugador tire
+ * 
+ * @param acaba verifica si el juego debe acabar o no
+ */
+void Jugador::esperando_turno(short &acaba)
 {
+    try{
+        sem_wait(this->sem);
 
-    sem_wait(this->sem);
+        mensaje *recibido = static_cast<mensaje *>(this->memory_ptr);
 
-    mensaje *recibido = static_cast<mensaje *>(this->memory_ptr);
+        std::cout << "\n\nRecibiendo impacto" << std::endl;
+        std::cout << "x= " << recibido->coordenadas[0] << ", y= " << recibido->coordenadas[1] << std::endl;
 
+        char resultado = this->tablero_jugador.tira(recibido->coordenadas[0], recibido->coordenadas[1]);
 
-    std::cout << "\n\nRecibiendo impacto" << std::endl;
-    std::cout << "x= " << recibido->coordenadas[0] << ", y= " << recibido->coordenadas[1] << std::endl;
-
-    char resulado = this->tablero_jugador.tira(recibido->coordenadas[0], recibido->coordenadas[1]);
-
-    if (resulado == 'O')
-    {
-        for (Barco barco : this->barcos)
+        if (resultado == 'O')
         {
-            if (barco.checa_coordenadas(recibido->coordenadas[0], recibido->coordenadas[1]))
+            for (unsigned short i = 0; i< this->barcos.size(); i++)
             {
-                barco.actualizar_vida();
-                break;
+                if (this->barcos[i].checa_coordenadas(recibido->coordenadas[1], recibido->coordenadas[0]))
+                {
+                    this->barcos[i].actualizar_vida();
+
+                    break;
+                }
             }
         }
+        else if (resultado == 'T')
+        {
+            resultado = 'O';
+        }
+        
+        if(this->aun_hay_barcos()){
+            recibido->valor = resultado;
+        }
+        else {
+            recibido->valor = 'G';
+            acaba = -1;
+        }
+
+        std::cout << (resultado == 'O' ? "Nos dio" : "Fallo") << std::endl;
+
+        sem_post(this->sem);
+
+        sleep(2);
+
+        sem_wait(this->sem);
+
+        this->cambia_acceso();
     }
-    else if (resulado == 'T')
-    {
-        resulado = 'O';
+    catch(...){
+
     }
-
-    recibido->valor = resulado;
-
-    std::cout << (recibido->valor == 'O' ? "Nos dio" : "Fallo") << std::endl;
-
-    sem_post(this->sem);
-
-    sleep(2);
-
-    sem_wait(this->sem);
-
-    this->cambia_acceso();
-
 }
 
-void Jugador::tirar()
+/**
+ * @brief Operación de tirar de un proceso a otro
+ * 
+ * @param acaba lleva el control si el juego debe acabar
+ */
+void Jugador::tirar(short &acaba)
 {
-    // leer coordenadas
     mensaje *enviado = static_cast<mensaje *>(this->memory_ptr);
 
     std::pair<unsigned short, unsigned short> coordenadas = capturar_coordenadas();
@@ -332,9 +374,17 @@ void Jugador::tirar()
 
     mensaje *recibido = static_cast<mensaje *>(this->memory_ptr);
 
-    this->tablero_oponente.tira(recibido->coordenadas[0], recibido->coordenadas[1], recibido->valor);
+    if(recibido->valor == 'G'){
+        this->tablero_oponente.tira(recibido->coordenadas[0], recibido->coordenadas[1], 'O');
+        acaba = 1;
+    }
+    else {
+        this->tablero_oponente.tira(recibido->coordenadas[0], recibido->coordenadas[1], recibido->valor);
+    }
 
-    std::cout << (recibido->valor == 'O' ? "Le diste" : "Fallaste") << std::endl;
+    char valor = recibido->valor == 'G'? 'O' : recibido->valor;
+
+    std::cout << (valor == 'O' ? "Le diste" : "Fallaste") << std::endl;
 
     this->escribirEnArchivo(*recibido);
 
@@ -344,9 +394,14 @@ void Jugador::tirar()
 
     sleep(2);
 
-    this->iniciar_hilo();
+    this->iniciar_hilo(acaba);
 }
 
+/**
+ * @brief Finaliza el hilo creado para interactuar con el otro procesp
+ * 
+ * @param exit 
+ */
 void Jugador::finalizar_hilo(bool exit = false)
 {
     if (this->hilo.joinable())
@@ -355,16 +410,31 @@ void Jugador::finalizar_hilo(bool exit = false)
     }
 }
 
-void Jugador::iniciar_hilo()
+/**
+ * @brief Inicia el Hilo que va a estar pendiente de la respuesta del contrincante
+ * 
+ * @param acaba Lleva el control si el juego debe de terminar
+ */
+void Jugador::iniciar_hilo(short &acaba)
 {
-    this->hilo = std::thread(&Jugador::esperando_turno, this);
+    this->hilo = std::thread(&Jugador::esperando_turno, this, std::ref(acaba));
 }
 
+/**
+ * @brief Regresa si el jugador ha posicionado todos sus barcos en el tablero
+ * 
+ * @return true cuando no quedan barcos que posicionar
+ * @return false cuando faltan barcos
+ */
 bool Jugador::get_tablero_listo()
 {
     return this->tablero_listo;
 }
 
+/**
+ * @brief Otorga un resumen de la vida de cada barco
+ * 
+ */
 void Jugador::resumen_barcos()
 {
     for (Barco barco : this->barcos)
@@ -380,6 +450,10 @@ void Jugador::resumen_barcos()
     }
 }
 
+/**
+ * @brief Imprime las posiciones de los barcos en el tablero
+ * 
+ */
 void Jugador::posiciones_barcos()
 {
     for (Barco barco : this->barcos)
@@ -391,4 +465,20 @@ void Jugador::posiciones_barcos()
         }
         std::cout << std::endl;
     }
+}
+
+/**
+ * @brief Verifica si el jugador aun tiene barcos con vida
+ * 
+ * @return true cuando el jugador aun tiene barcos | 
+ * @return false cuando todos los barcos se han hundido
+ */
+bool Jugador::aun_hay_barcos(){
+    for(Barco barco : this->barcos){
+        if(barco.get_vida() > 0){
+            return true;
+        }
+    }
+    
+    return false;
 }

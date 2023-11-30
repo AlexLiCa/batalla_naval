@@ -30,7 +30,7 @@ private:
     sem_t *sem;
     int shm_fd;
     void *memory_ptr;
-    void esperando_turno();
+    void esperando_turno(short &);
     std::string nombre;
 
     struct mensaje
@@ -47,8 +47,10 @@ public:
     void resumen_barcos();
     void posiciones_barcos();
 
-    void tirar();
-    void iniciar_hilo();
+    bool aun_hay_barcos();
+
+    void tirar(short &);
+    void iniciar_hilo(short &);
     void finalizar_hilo(bool);
 
     void cambia_acceso();

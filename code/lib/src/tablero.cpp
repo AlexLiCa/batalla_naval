@@ -117,6 +117,13 @@ void Tablero::muestra_tablero()
     }
 }
 
+/**
+ * @brief Efectua la acción de tiro en un tablero y actualiza el valor en el tablero
+ * 
+ * @param x coordenada en x
+ * @param y coordenada en y
+ * @return char resultado del tiro | X = fallaste | O = acertaste | T = tiro duplicado
+ */
 char Tablero::tira(unsigned short x, unsigned short y)
 {
     if(this->tablero[y][x] == '0' || this->tablero[y][x] == 'X'){
@@ -137,6 +144,13 @@ char Tablero::tira(unsigned short x, unsigned short y)
     return 'O';
 }
 
+/**
+ * @brief Cambia un valor en el tablero
+ * 
+ * @param x coordenada en x
+ * @param y coordenada en y
+ * @param valor Nuevo valor que debe tener la coordenada
+ */
 void Tablero::tira(unsigned short x, unsigned short y, char valor)
 {
     this->tablero[y][x] = valor;
