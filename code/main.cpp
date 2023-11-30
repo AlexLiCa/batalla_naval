@@ -89,8 +89,8 @@ int menu_juegos()
     cout << "\n"
          << endl;
     cout << "Menu:" << endl;
-    cout << "1. Crear semáforo" << endl;
-    cout << "2. Acceder al semáforo" << endl;
+    cout << "1. Crear juego" << endl;
+    cout << "2. Acceder al juego" << endl;
     cout << "3. Salir" << endl;
     cout << "Ingrese su opcion: ";
 
@@ -124,14 +124,14 @@ bool crearSemaforo(const char *nombre)
     if (sem == SEM_FAILED)
     {
         // El semáforo ya existe
-        cerr << "Error: No se pudo crear el semáforo. Ya existe." << endl;
+        cerr << "Error: No se pudo crear el juego. Ya existe." << endl;
         return false;
     }
     else
     {
 
         // El semáforo se creó exitosamente
-        cout << "Semaforo creado exitosamente." << endl;
+        cout << "Juego creado." << endl;
         sem_wait(sem);
         return true;
     }
@@ -152,13 +152,13 @@ bool accederSemaforo(const char *nombre)
     {
         if (sem_trywait(sem) == 0)
         {
-            cout << "Semaforo accedido al juego." << endl;
+            cout << "Entraste al juego:" << nombre <<  endl;
             return true;
         }
 
         else
         {
-            cout << "Parece que el juego ya esta lleno" << endl;
+            cout << "Parece que el juego:" << nombre << "ya esta lleno" << endl;
         }
         return false;
     }
