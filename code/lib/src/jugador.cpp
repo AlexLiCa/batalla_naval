@@ -310,9 +310,13 @@ void Jugador::esperando_turno()
     this->cambia_acceso();
 }
 
-void Jugador::tirar()
+/**
+ * @brief Operación de tirar de un proceso a otro
+ *
+ * @param acaba lleva el control si el juego debe acabar
+ */
+void Jugador::tirar(short &acaba)
 {
-    // leer coordenadas
     mensaje *enviado = static_cast<mensaje *>(this->memory_ptr);
 
     std::pair<unsigned short, unsigned short> coordenadas = capturar_coordenadas();
@@ -329,9 +333,19 @@ void Jugador::tirar()
 
     mensaje *recibido = static_cast<mensaje *>(this->memory_ptr);
 
-    this->tablero_oponente.tira(recibido->coordenadas[0], recibido->coordenadas[1], recibido->valor);
+    if (recibido->valor == 'G')
+    {
+        this->tablero_oponente.tira(recibido->coordenadas[0], recibido->coordenadas[1], 'O');
+        acaba = 1;
+    }
+    else
+    {
+        this->tablero_oponente.tira(recibido->coordenadas[0], recibido->coordenadas[1], recibido->valor);
+    }
 
-    std::cout << (recibido->valor == 'X' ? "Le diste" : "Fallaste") << std::endl;
+    char valor = recibido->valor == 'G' ? 'O' : recibido->valor;
+
+    std::cout << (valor == 'O' ? "Le diste" : "Fallaste") << std::endl;
 
     this->escribirEnArchivo(*recibido);
 
@@ -341,9 +355,14 @@ void Jugador::tirar()
 
     sleep(2);
 
-    this->iniciar_hilo();
+    this->iniciar_hilo(acaba);
 }
 
+/**
+ * @brief Finaliza el hilo creado para interactuar con el otro procesp
+ *
+ * @param exit
+ */
 void Jugador::finalizar_hilo(bool exit = false)
 {
     if (this->hilo.joinable())
@@ -352,12 +371,80 @@ void Jugador::finalizar_hilo(bool exit = false)
     }
 }
 
-void Jugador::iniciar_hilo()
+/**
+ * @brief Inicia el Hilo que va a estar pendiente de la respuesta del contrincante
+ *
+ * @param acaba Lleva el control si el juego debe de terminar
+ */
+void Jugador::iniciar_hilo(short &acaba)
 {
-    this->hilo = std::thread(&Jugador::esperando_turno, this);
+    this->hilo = std::thread(&Jugador::esperando_turno, this, std::ref(acaba));
 }
 
+/**
+ * @brief Regresa si el jugador ha posicionado todos sus barcos en el tablero
+ *
+ * @return true cuando no quedan barcos que posicionar
+ * @return false cuando faltan barcos
+ */
 bool Jugador::get_tablero_listo()
 {
     return this->tablero_listo;
+}
+
+/**
+ * @brief Otorga un resumen de la vida de cada barco
+ *
+ */
+void Jugador::resumen_barcos()
+{
+    for (Barco barco : this->barcos)
+    {
+        if (barco.get_vida() > 0)
+        {
+            std::cout << barco.get_nombre() << " -- "
+                      << "Vidas Restante: " << barco.get_vida() << std::endl;
+        }
+        else
+        {
+            std::cout << barco.get_nombre() << " -- "
+                      << "Hundido" << std::endl;
+        }
+    }
+}
+
+/**
+ * @brief Imprime las posiciones de los barcos en el tablero
+ *
+ */
+void Jugador::posiciones_barcos()
+{
+    for (Barco barco : this->barcos)
+    {
+        std::cout << barco.get_nombre() << " -- Posiciones" << std::endl;
+        for (std::pair<unsigned short, unsigned short> pair : barco.get_posiciones())
+        {
+            std::cout << "x: " << pair.second << " | y: " << pair.first << std::endl;
+        }
+        std::cout << std::endl;
+    }
+}
+
+/**
+ * @brief Verifica si el jugador aun tiene barcos con vida
+ *
+ * @return true cuando el jugador aun tiene barcos |
+ * @return false cuando todos los barcos se han hundido
+ */
+bool Jugador::aun_hay_barcos()
+{
+    for (Barco barco : this->barcos)
+    {
+        if (barco.get_vida() > 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }

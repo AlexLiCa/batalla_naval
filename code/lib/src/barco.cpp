@@ -89,16 +89,51 @@ void Barco::cambiar_dir()
     this->dir = !this->dir;
 }
 
+/**
+ * @brief Verifica si un barco tiene en sus posiciones las coordenadas dadas
+ *
+ * @param x coordenada en x
+ * @param y coordenada en y
+ * @return true cuando el barco si tiene las coordenadas dadas |
+ * @return false cuando el barco no se encuentra en esas coordenadas
+ */
 bool Barco::checa_coordenadas(unsigned short x, unsigned short y)
 {
-    for (std::pair<unsigned short, unsigned short> coordenada: this->posiciones) {
-        if(coordenada.first == y && coordenada.second == x){
+    for (std::pair<unsigned short, unsigned short> coordenada : this->posiciones)
+    {
+        if (coordenada.first == y && coordenada.second == x)
+        {
             return true;
         }
     }
     return false;
 }
 
-void Barco::actualizar_vida(){
+/**
+ * @brief Disminuye la vida del barco
+ *
+ */
+void Barco::actualizar_vida()
+{
     this->vida--;
+}
+
+/**
+ * @brief Regresa la vida del barco del jugador
+ *
+ * @return unsigned short vida del barco
+ */
+unsigned short Barco::get_vida()
+{
+    return this->vida;
+}
+
+/**
+ * @brief Retorna el vector de las posiciones del barco en el tablero
+ *
+ * @return std::vector<std::pair<unsigned short, unsigned short>> posiciones
+ */
+std::vector<std::pair<unsigned short, unsigned short>> Barco::get_posiciones()
+{
+    return this->posiciones;
 }

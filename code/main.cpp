@@ -3,13 +3,18 @@
 #include <fcntl.h>
 #include <semaphore.h>
 #include <unistd.h>
-#include <ctime>
-#include <chrono>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "lib/headers/jugador.h"
 
 using namespace std;
+
+void waitEnter()
+{
+    std::string nada;
+    std::cout << "Presiona Enter para terminar" << std::endl;
+    getline(std::cin, nada);
+}
 
 short captura_entero(string caption)
 {
@@ -48,8 +53,10 @@ int menu()
     cout << "1. Mostrar Tablero" << endl;
     cout << "2. Mostrar Tablero Oponente" << endl;
     cout << "3. Agregar Barco" << endl;
-    cout << "4. Hacer un Tiro" << endl;
-    cout << "5. Salir" << endl;
+    cout << "4. Resumen de Barcos" << endl;
+    cout << "5. Posiciones de los Barcos" << endl;
+    cout << "6. Hacer un Tiro" << endl;
+    cout << "7. Salir" << endl;
     cout << "Ingrese su opcion: ";
 
     try
@@ -122,7 +129,7 @@ bool crearSemaforo(const char *nombre)
     }
     else
     {
-        
+
         // El semáforo se creó exitosamente
         cout << "Semaforo creado exitosamente." << endl;
         sem_wait(sem);
@@ -134,7 +141,6 @@ bool accederSemaforo(const char *nombre)
 {
     // Intentar acceder al semáforo
     sem_t *sem = sem_open(nombre, O_RDWR);
-    
 
     if (sem == SEM_FAILED)
     {
@@ -144,16 +150,17 @@ bool accederSemaforo(const char *nombre)
     }
     else
     {
-        if (sem_trywait(sem) == 0){
+        if (sem_trywait(sem) == 0)
+        {
             cout << "Semaforo accedido al juego." << endl;
             return true;
         }
 
-        else{ 
-            cout << "Parece que el juego ya esta lleno"<< endl;
+        else
+        {
+            cout << "Parece que el juego ya esta lleno" << endl;
         }
         return false;
-
     }
 }
 
@@ -162,8 +169,6 @@ int main()
     bool semaforoAccedido = false;
     string nombreSemaforo;
     int opcion_juegos = 0;
-
-    sem_unlink("/lin");
 
     while (!semaforoAccedido)
     {
@@ -196,10 +201,11 @@ int main()
     {
         Jugador jugador(nombreSemaforo);
         bool primer_tiro = true;
+        short acabo = 0;
 
         if (!jugador.get_tiene_acceso())
         {
-            jugador.iniciar_hilo();
+            jugador.iniciar_hilo(acabo);
             primer_tiro = false;
         }
 
@@ -208,52 +214,73 @@ int main()
         do
         {
             opc = menu();
-            switch (opc)
+
+            if (acabo == 0)
             {
-            case 1:
-                jugador.muestra_tablero(true);
-                break;
-            case 2:
-                jugador.muestra_tablero(false);
-                break;
-            case 3:
-                cout << endl;
-                jugador.colocar_barco();
-                break;
-            case 4:
-                // if(jugador.get_tablero_listo()){
-                if (jugador.get_tiene_acceso())
+                switch (opc)
                 {
-                    if (!primer_tiro)
+                case 1:
+                    jugador.muestra_tablero(true);
+                    break;
+                case 2:
+                    jugador.muestra_tablero(false);
+                    break;
+                case 3:
+                    cout << endl;
+                    jugador.colocar_barco();
+                    break;
+                case 4:
+                    cout << endl;
+                    jugador.resumen_barcos();
+                    break;
+                case 5:
+                    cout << endl;
+                    jugador.posiciones_barcos();
+                    break;
+                case 6:
+                    if (jugador.get_tablero_listo())
                     {
-                        jugador.finalizar_hilo(false);
+                        if (jugador.get_tiene_acceso())
+                        {
+                            if (!primer_tiro)
+                            {
+                                jugador.finalizar_hilo(false);
+                            }
+
+                            jugador.tirar(acabo);
+                        }
+                        else
+                        {
+                            std::cout << "\nEsperando turno";
+                        }
+                    }
+                    else
+                    {
+                        std::cout << "\nTermina de llenar tu tablero";
                     }
 
-                    jugador.tirar();
-                    cout << "Termine de Tirar" << endl;
-                }
-                else
-                {
-                    cout << "\nEsperando turno";
-                }
-                // }
-                // else {
-                //     cout << "\nTermina de llenar tu tablero";
-                // }
+                    primer_tiro = false;
 
-                primer_tiro = false;
-
-                break;
-            case 5:
-                break;
-            default:
-                cout << "Opcion invalida." << endl;
-                break;
+                    break;
+                case 7:
+                    break;
+                default:
+                    cout << "Opcion invalida." << endl;
+                    break;
+                }
             }
+        } while (opc != 7 && acabo == 0);
 
-        } while (opc != 5);
+        if (acabo == 1)
+        {
+            cout << "Ganaste!!" << endl;
+        }
+        else if (acabo == -1)
+        {
+            cout << "Perdiste..." << endl;
+        }
+
+        waitEnter();
     }
-
-
     return 0;
 }

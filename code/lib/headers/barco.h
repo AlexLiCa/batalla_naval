@@ -38,6 +38,8 @@ public:
     bool get_direccion();
     void agrega_coordenada(unsigned short, unsigned short);
     bool get_colocado();
+    unsigned short get_vida();
+    std::vector<std::pair<unsigned short, unsigned short>> get_posiciones();
 };
 
 #endif // !BARCO_H

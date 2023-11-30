@@ -43,9 +43,13 @@ public:
     ~Jugador();
     void muestra_tablero(bool);
     void colocar_barco();
+    void resumen_barcos();
+    void posiciones_barcos();
+
+    bool aun_hay_barcos();
     
-    void tirar();
-    void iniciar_hilo();
+    void tirar(short &);
+    void iniciar_hilo(short &);
     void finalizar_hilo(bool);
 
     void cambia_acceso();
