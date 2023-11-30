@@ -1,7 +1,6 @@
 // necessary includes -------->
 #include "../headers/jugador.h"
 
-#define SEM_NAME "/semaforo_batalla_naval"
 #define SHM_NAME "/shm_batalla_naval"
 
 // functions definition -------->
@@ -10,7 +9,7 @@
  *
  * @param fifo_fd
  */
-Jugador::Jugador() : tablero_jugador(), tablero_oponente()
+Jugador::Jugador(std::string nombre_semaforo) : tablero_jugador(), tablero_oponente(), sem_name(nombre_semaforo)
 {
     this->tablero_listo = false;
 
@@ -21,11 +20,11 @@ Jugador::Jugador() : tablero_jugador(), tablero_oponente()
         barcos.push_back(Barco(nombres_barcos[i], i + 1));
     }
 
-    this->sem = sem_open(SEM_NAME, 0);
+    this->sem = sem_open((sem_name + "_j").c_str(), 0);
 
     if (this->sem == SEM_FAILED)
     {
-        this->sem = sem_open(SEM_NAME, O_CREAT, 0660, 1);
+        this->sem = sem_open((sem_name + "_j").c_str(), O_CREAT, 0660, 1);
     }
 
     this->tiene_acceso = (sem_trywait(this->sem) == 0);
@@ -65,7 +64,10 @@ Jugador::~Jugador()
     shm_unlink(SHM_NAME);
 
     sem_close(this->sem);
-    sem_unlink(SEM_NAME);
+    // semaforo para el juego
+    sem_unlink((this->sem_name + "_j").c_str());
+    // semaforo del juego
+    sem_unlink(this->sem_name.c_str());
 }
 
 /**
@@ -277,7 +279,6 @@ void Jugador::esperando_turno()
 
     mensaje *recibido = static_cast<mensaje *>(this->memory_ptr);
 
-
     std::cout << "\n\nRecibiendo impacto" << std::endl;
     std::cout << "x= " << recibido->coordenadas[0] << ", y= " << recibido->coordenadas[1] << std::endl;
 
@@ -310,7 +311,6 @@ void Jugador::esperando_turno()
     sem_wait(this->sem);
 
     this->cambia_acceso();
-
 }
 
 void Jugador::tirar()
@@ -369,13 +369,15 @@ void Jugador::resumen_barcos()
 {
     for (Barco barco : this->barcos)
     {
-        if(barco.get_vida() > 0)
+        if (barco.get_vida() > 0)
         {
-            std::cout << barco.get_nombre() << " -- " << "Vidas Restante: " << barco.get_vida() << std::endl;   
+            std::cout << barco.get_nombre() << " -- "
+                      << "Vidas Restante: " << barco.get_vida() << std::endl;
         }
-        else 
+        else
         {
-            std::cout << barco.get_nombre() << " -- " << "Hundido" << std::endl;
+            std::cout << barco.get_nombre() << " -- "
+                      << "Hundido" << std::endl;
         }
     }
 }

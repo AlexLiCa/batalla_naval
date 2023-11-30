@@ -31,7 +31,7 @@ private:
     int shm_fd;
     void *memory_ptr;
     void esperando_turno();
-    std::string nombre;
+    std::string nombre, sem_name;
 
     struct mensaje
     {
@@ -40,7 +40,7 @@ private:
     };
 
 public:
-    Jugador();
+    Jugador(std::string);
     ~Jugador();
     void muestra_tablero(bool);
     void colocar_barco();

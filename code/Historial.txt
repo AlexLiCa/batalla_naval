@@ -222,3 +222,7 @@ Jugador 2
 x: 2
 y: 2
 valor:X
+Jugador 1
+x: 4
+y: 4
+valor:X
