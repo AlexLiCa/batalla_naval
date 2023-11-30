@@ -152,13 +152,13 @@ bool accederSemaforo(const char *nombre)
     {
         if (sem_trywait(sem) == 0)
         {
-            cout << "Entraste al juego:" << nombre <<  endl;
+            cout << "Entraste al juego:" <<  endl;
             return true;
         }
 
         else
         {
-            cout << "Parece que el juego:" << nombre << "ya esta lleno" << endl;
+            cout << "Parece que el juego ya esta lleno" << endl;
         }
         return false;
     }

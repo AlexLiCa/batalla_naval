@@ -239,6 +239,12 @@ void Jugador::limpiar_archivo(const char *nombreArchivo)
         return;
     }
 
+        if (fileDescriptor == -1)
+    {
+        std::cerr << "Error al limpiar el archivo." << std::endl;
+        return;
+    }
+
     close(fileDescriptor);
 }
 
@@ -272,7 +278,7 @@ void Jugador::escribirEnArchivo(mensaje tiro_info)
     close(fileDescriptor);
 }
 
-void Jugador::esperando_turno()
+void Jugador::esperando_turno(short &acaba)
 {
 
     sem_wait(this->sem);
