@@ -277,6 +277,8 @@ void Jugador::esperando_turno()
 
     mensaje *recibido = static_cast<mensaje *>(this->memory_ptr);
 
+
+    std::cout << "\n\nRecibiendo impacto" << std::endl;
     std::cout << "x= " << recibido->coordenadas[0] << ", y= " << recibido->coordenadas[1] << std::endl;
 
     char resulado = this->tablero_jugador.tira(recibido->coordenadas[0], recibido->coordenadas[1]);
@@ -299,6 +301,8 @@ void Jugador::esperando_turno()
 
     recibido->valor = resulado;
 
+    std::cout << (recibido->valor == 'O' ? "Nos dio" : "Fallo") << std::endl;
+
     sem_post(this->sem);
 
     sleep(2);
@@ -306,6 +310,7 @@ void Jugador::esperando_turno()
     sem_wait(this->sem);
 
     this->cambia_acceso();
+
 }
 
 void Jugador::tirar()
@@ -329,7 +334,7 @@ void Jugador::tirar()
 
     this->tablero_oponente.tira(recibido->coordenadas[0], recibido->coordenadas[1], recibido->valor);
 
-    std::cout << (recibido->valor == 'X' ? "Le diste" : "Fallaste") << std::endl;
+    std::cout << (recibido->valor == 'O' ? "Le diste" : "Fallaste") << std::endl;
 
     this->escribirEnArchivo(*recibido);
 

@@ -120,7 +120,6 @@ int main()
                 }
 
                 jugador.tirar();
-                cout << "Termine de Tirar" << endl;
             }
             else
             {
