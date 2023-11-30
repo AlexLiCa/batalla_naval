@@ -3,6 +3,8 @@
 #include <fcntl.h>
 #include <semaphore.h>
 #include <unistd.h>
+#include <ctime>
+#include <chrono>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "lib/headers/jugador.h"
@@ -120,8 +122,10 @@ bool crearSemaforo(const char *nombre)
     }
     else
     {
+        
         // El semáforo se creó exitosamente
         cout << "Semaforo creado exitosamente." << endl;
+        sem_wait(sem);
         return true;
     }
 }
@@ -130,20 +134,26 @@ bool accederSemaforo(const char *nombre)
 {
     // Intentar acceder al semáforo
     sem_t *sem = sem_open(nombre, O_RDWR);
+    
 
     if (sem == SEM_FAILED)
     {
         // El semáforo no existe
-        cerr << "No se pudo acceder al semáforo. " << endl;
+        cerr << "El juego no existe. " << endl;
         return false;
     }
     else
     {
-        // El semáforo se accedió exitosamente
-        cout << "Semaforo accedido exitosamente." << endl;
+        if (sem_trywait(sem) == 0){
+            cout << "Semaforo accedido al juego." << endl;
+            return true;
+        }
 
-        // Hacer algo con el semáforo, si es necesario
-        return true;
+        else{ 
+            cout << "Parece que el juego ya esta lleno"<< endl;
+        }
+        return false;
+
     }
 }
 
@@ -152,6 +162,8 @@ int main()
     bool semaforoAccedido = false;
     string nombreSemaforo;
     int opcion_juegos = 0;
+
+    sem_unlink("/lin");
 
     while (!semaforoAccedido)
     {
@@ -242,7 +254,6 @@ int main()
         } while (opc != 5);
     }
 
-    //sem_unlink(nombreSemaforo.c_str());
 
     return 0;
 }
