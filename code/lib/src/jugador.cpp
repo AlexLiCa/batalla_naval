@@ -279,13 +279,13 @@ void Jugador::escribirEnArchivo(mensaje tiro_info)
     char valor[] = {tiro_info.valor};
 
     // Escribir en el archivo en el formato "Nombre: texto"
-    write(fileDescriptor, this->nombre.c_str(), this->nombre.size() + 1);
+    write(fileDescriptor, this->nombre.c_str(), this->nombre.size());
     write(fileDescriptor, "\n", 1);
     write(fileDescriptor, "x: ", 3);
-    write(fileDescriptor, x.c_str(), x.size() + 1);
+    write(fileDescriptor, x.c_str(), x.size());
     write(fileDescriptor, "\n", 1);
     write(fileDescriptor, "y: ", 3);
-    write(fileDescriptor, y.c_str(), y.size() + 1);
+    write(fileDescriptor, y.c_str(), y.size());
     write(fileDescriptor, "\n", 1);
     write(fileDescriptor, "valor: ", 6);
     write(fileDescriptor, valor, 1);
