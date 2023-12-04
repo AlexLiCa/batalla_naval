@@ -1,5 +1,7 @@
 // necessary includes -------->
 #include "../headers/jugador.h"
+#include <semaphore.h>
+#include <unistd.h>
 
 // functions definition -------->
 /**
@@ -31,11 +33,11 @@ Jugador::Jugador(std::string nombre_semaforo) : tablero_jugador(), tablero_opone
 
     if (this->tiene_acceso)
     {
-        this->shm_fd = shm_open(sem_name, O_CREAT | O_RDWR, 0660);
+        this->shm_fd = shm_open(sem_name.c_str(), O_CREAT | O_RDWR, 0660);
     }
     else
     {
-        this->shm_fd = shm_open(sem_name, O_RDWR, 0660);
+        this->shm_fd = shm_open(sem_name.c_str(), O_RDWR, 0660);
     }
 
     if (this->shm_fd == -1)
@@ -63,7 +65,7 @@ Jugador::Jugador(std::string nombre_semaforo) : tablero_jugador(), tablero_opone
 Jugador::~Jugador()
 {
     close(this->shm_fd);
-    shm_unlink(sem_name);
+    shm_unlink(sem_name.c_str());
 
     sem_close(this->sem);
     sem_unlink((this->sem_name + "_j").c_str());
@@ -263,7 +265,7 @@ void Jugador::limpiar_archivo(const char *nombreArchivo)
  */
 void Jugador::escribirEnArchivo(mensaje tiro_info)
 {
-    int fileDescriptor = open("Historial.txt", O_WRONLY | O_CREAT | O_APPEND, 0666);
+    int fileDescriptor = open(("Historial/" + this->sem_name + ".txt").c_str(), O_WRONLY | O_CREAT | O_APPEND, 0666);
 
     if (fileDescriptor == -1)
     {
@@ -303,48 +305,53 @@ void Jugador::esperando_turno(short &acaba)
         sem_wait(this->sem);
 
         mensaje *recibido = static_cast<mensaje *>(this->memory_ptr);
+        
+        if(recibido->valor != 'R'){
+            std::cout << "\n\nRecibiendo impacto" << std::endl;
+            std::cout << "x= " << recibido->coordenadas[0] << ", y= " << recibido->coordenadas[1] << std::endl;
 
-        std::cout << "\n\nRecibiendo impacto" << std::endl;
-        std::cout << "x= " << recibido->coordenadas[0] << ", y= " << recibido->coordenadas[1] << std::endl;
+            char resultado = this->tablero_jugador.tira(recibido->coordenadas[0], recibido->coordenadas[1]);
 
-        char resultado = this->tablero_jugador.tira(recibido->coordenadas[0], recibido->coordenadas[1]);
-
-        if (resultado == 'O')
-        {
-            for (unsigned short i = 0; i < this->barcos.size(); i++)
+            if (resultado == 'O')
             {
-                if (this->barcos[i].checa_coordenadas(recibido->coordenadas[1], recibido->coordenadas[0]))
+                for (unsigned short i = 0; i < this->barcos.size(); i++)
                 {
-                    this->barcos[i].actualizar_vida();
+                    if (this->barcos[i].checa_coordenadas(recibido->coordenadas[1], recibido->coordenadas[0]))
+                    {
+                        this->barcos[i].actualizar_vida();
 
-                    break;
+                        break;
+                    }
                 }
             }
+            else if (resultado == 'T')
+            {
+                resultado = 'O';
+            }
+
+            if (this->aun_hay_barcos())
+            {
+                recibido->valor = resultado;
+            }
+            else
+            {
+                recibido->valor = 'G';
+                acaba = -1;
+            }
+
+            std::cout << (resultado == 'O' ? "Nos dio" : "Fallo") << std::endl;
+
+            sem_post(this->sem);
+
+            sleep(2);
+
+            sem_wait(this->sem);
+
+            this->cambia_acceso();
         }
-        else if (resultado == 'T')
-        {
-            resultado = 'O';
+        else {
+            acaba = -2;
         }
-
-        if (this->aun_hay_barcos())
-        {
-            recibido->valor = resultado;
-        }
-        else
-        {
-            recibido->valor = 'G';
-            acaba = -1;
-        }
-
-        std::cout << (resultado == 'O' ? "Nos dio" : "Fallo") << std::endl;
-
-        sem_post(this->sem);
-
-        sleep(2);
-
-        sem_wait(this->sem);
-
-        this->cambia_acceso();
     }
     catch (...)
     {
@@ -370,33 +377,45 @@ void Jugador::tirar(short &acaba)
 
     sleep(1);
 
-    sem_wait(this->sem);
-
+    unsigned short counter = 0;
     mensaje *recibido = static_cast<mensaje *>(this->memory_ptr);
 
-    if (recibido->valor == 'G')
-    {
-        this->tablero_oponente.tira(recibido->coordenadas[0], recibido->coordenadas[1], 'O');
-        acaba = 1;
-    }
-    else
-    {
-        this->tablero_oponente.tira(recibido->coordenadas[0], recibido->coordenadas[1], recibido->valor);
+    while((sem_trywait(this->sem) == -1 || recibido->valor == ' ') && counter < 5){
+        sem_post(this->sem);
+        sleep(1);
+        counter++;
     }
 
-    char valor = recibido->valor == 'G' ? 'O' : recibido->valor;
+    if(counter < 5){
 
-    std::cout << (valor == 'O' ? "Le diste" : "Fallaste") << std::endl;
+        if (recibido->valor == 'G')
+        {
+            this->tablero_oponente.tira(recibido->coordenadas[0], recibido->coordenadas[1], 'O');
+            acaba = 1;
+        }
+        else
+        {
+            this->tablero_oponente.tira(recibido->coordenadas[0], recibido->coordenadas[1], recibido->valor);
+        }
 
-    this->escribirEnArchivo(*recibido);
+        char valor = recibido->valor == 'G' ? 'O' : recibido->valor;
 
-    sem_post(this->sem);
+        std::cout << (valor == 'O' ? "Le diste" : "Fallaste") << std::endl;
 
-    this->cambia_acceso();
+        this->escribirEnArchivo(*recibido);
 
-    sleep(2);
+        sem_post(this->sem);
 
-    this->iniciar_hilo(acaba);
+        this->cambia_acceso();
+
+        sleep(2);
+
+        this->iniciar_hilo(acaba);
+    }
+    else {
+        acaba = -2;
+    }
+
 }
 
 /**
@@ -488,4 +507,20 @@ bool Jugador::aun_hay_barcos()
     }
 
     return false;
+}
+
+/**
+ * @brief Finaliza el juego de ambos jugadores
+ * 
+ * @param acaba  
+ */
+void Jugador::rage_quit(short &acaba){
+    acaba = 2;
+
+    if(this->tiene_acceso){
+        mensaje *enviado = static_cast<mensaje *>(this->memory_ptr);
+        enviado->valor = 'R';
+
+        sem_post(this->sem);
+    }
 }

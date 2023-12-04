@@ -1,0 +1,12 @@
+Jugador 1
+x: 2
+y: 5
+valor: 
+Jugador 1
+x: 2
+y: 4
+valor: 
+Jugador 1
+x: 2
+y: 5
+valor:X

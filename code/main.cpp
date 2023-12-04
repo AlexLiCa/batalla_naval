@@ -21,7 +21,6 @@ int menu()
 {
     int opcion = 0;
 
-    // Mostrar opciones del menú
     cout << "\n"
          << endl;
     cout << "1. Mostrar Tablero" << endl;
@@ -35,16 +34,13 @@ int menu()
 
     try
     {
-        // Leer la opción del usuario
         if (!(cin >> opcion))
         {
-            // Limpiar el estado de error del flujo de entrada
             cin.clear();
-            // Descartar la entrada incorrecta
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
             throw invalid_argument("No es una entrada valida. \n");
         }
-        // Limpiar el buffer de entrada
+        
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
     catch (const invalid_argument &e)
@@ -59,27 +55,22 @@ int menu_juegos()
 {
     int opcion = 0;
 
-    // Mostrar opciones del menú
     cout << "\n"
          << endl;
-    cout << "Menu:" << endl;
-    cout << "1. Crear semáforo" << endl;
-    cout << "2. Acceder al semáforo" << endl;
+    cout << "1. Crear juego" << endl;
+    cout << "2. Unirse a un juego" << endl;
     cout << "3. Salir" << endl;
     cout << "Ingrese su opcion: ";
 
     try
     {
-        // Leer la opción del usuario
         if (!(cin >> opcion))
         {
-            // Limpiar el estado de error del flujo de entrada
             cin.clear();
-            // Descartar la entrada incorrecta
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
             throw invalid_argument("No es una entrada valida. \n");
         }
-        // Limpiar el buffer de entrada
+        
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
     catch (const invalid_argument &e)
@@ -90,35 +81,29 @@ int menu_juegos()
     return opcion;
 }
 
-bool crearSemaforo(const char *nombre, sem_t &sem)
+bool crearSemaforo(const char *nombre, sem_t *sem)
 {
-    // Intentar crear el semáforo
-    &sem = sem_open(nombre, O_CREAT | O_EXCL, 0644, 2);
+    sem = sem_open(nombre, O_CREAT | O_EXCL, 0644, 2);
 
     if (sem == SEM_FAILED)
     {
-        // El semáforo ya existe
-        cerr << "Error: No se pudo crear el semáforo. Ya existe." << endl;
+        cerr << "Por el momento no se puede usar ese nombre" << endl;
         return false;
     }
     else
     {
-
-        // El semáforo se creó exitosamente
-        cout << "Semaforo creado exitosamente." << endl;
+        cout << "Juego Iniciado correctamente." << endl;
         sem_wait(sem);
         return true;
     }
 }
 
-bool accederSemaforo(const char *nombre, sem_t &sem)
+bool accederSemaforo(const char *nombre, sem_t *sem)
 {
-    // Intentar acceder al semáforo
-    &sem = sem_open(nombre, O_RDWR);
+    sem = sem_open(nombre, 0);
 
     if (sem == SEM_FAILED)
     {
-        // El semáforo no existe
         cerr << "El juego no existe. " << endl;
         return false;
     }
@@ -126,13 +111,16 @@ bool accederSemaforo(const char *nombre, sem_t &sem)
     {
         if (sem_trywait(sem) == 0)
         {
-            cout << "Semaforo accedido al juego." << endl;
+            cout << "Juego encontrado!" << endl;
+            cout << "Estableciendo conexión..." << endl;
+            sleep(2);
+            cout << "Conexión exitosa..." << endl;
             return true;
         }
 
         else
         {
-            cout << "Parece que el juego ya esta lleno" << endl;
+            cout << "No te puedes unir a esta partida..." << endl;
         }
         return false;
     }
@@ -141,7 +129,8 @@ bool accederSemaforo(const char *nombre, sem_t &sem)
 int main()
 {
     bool semaforoAccedido = false;
-    string nombreSemaforo;
+    string nombre_semaforo;
+
     int opcion_juegos = 0;
     sem_t *sem;
 
@@ -153,15 +142,15 @@ int main()
         {
         case 1:
             cout << "Ingrese el nombre del juego a crear: ";
-            cin >> nombreSemaforo;
-            nombreSemaforo = "/" + nombreSemaforo;
-            semaforoAccedido = crearSemaforo(nombreSemaforo.c_str(), sem);
+            cin >> nombre_semaforo;
+            nombre_semaforo = "/" + nombre_semaforo;
+            semaforoAccedido = crearSemaforo(nombre_semaforo.c_str(), sem);
             break;
         case 2:
             cout << "Ingrese el nombre del juego al que desea acceder: ";
-            cin >> nombreSemaforo;
-            nombreSemaforo = "/" + nombreSemaforo;
-            semaforoAccedido = accederSemaforo(nombreSemaforo.c_str(), sem);
+            cin >> nombre_semaforo;
+            nombre_semaforo = "/" + nombre_semaforo;
+            semaforoAccedido = accederSemaforo(nombre_semaforo.c_str(), sem);
             break;
         case 3:
             cout << "Saliendo..." << endl;
@@ -172,14 +161,15 @@ int main()
         }
     }
 
-    if (semaforoAccedido)
+    if (semaforoAccedido && opcion_juegos != 3)
     {
-        Jugador jugador(nombreSemaforo);
+        Jugador jugador(nombre_semaforo);
         bool primer_tiro = true;
+        short acabo = 0;
 
         if (!jugador.get_tiene_acceso())
         {
-            jugador.iniciar_hilo();
+            jugador.iniciar_hilo(acabo);
             primer_tiro = false;
         }
 
@@ -188,57 +178,77 @@ int main()
         do
         {
             opc = menu();
-            switch (opc)
-            {
-            case 1:
-                jugador.muestra_tablero(true);
-                break;
-            case 2:
-                jugador.muestra_tablero(false);
-                break;
-            case 3:
-                cout << endl;
-                jugador.colocar_barco();
-                break;
-            case 4:
-                cout << endl;
-                jugador.resumen_barcos();
-                break;
-            case 5:
-                cout << endl;
-                jugador.posiciones_barcos();
-                break;
-            case 6:
-                // if(jugador.get_tablero_listo()){
-                if (jugador.get_tiene_acceso())
+
+            if(acabo == 0){
+                switch (opc)
                 {
-                    if (!primer_tiro)
-                    {
-                        jugador.finalizar_hilo(false);
+                case 1:
+                    jugador.muestra_tablero(true);
+                    break;
+                case 2:
+                    jugador.muestra_tablero(false);
+                    break;
+                case 3:
+                    cout << endl;
+                    jugador.colocar_barco();
+                    break;
+                case 4:
+                    cout << endl;
+                    jugador.resumen_barcos();
+                    break;
+                case 5:
+                    cout << endl;
+                    jugador.posiciones_barcos();
+                    break;
+                case 6:
+                    if(jugador.get_tablero_listo()){
+                        if (jugador.get_tiene_acceso())
+                        {
+                            if (!primer_tiro)
+                            {
+                                jugador.finalizar_hilo(false);
+                            }
+
+                            jugador.tirar(acabo);
+                        }
+                        else
+                        {
+                            std::cout << "\nEsperando turno";
+                        }
+                    }
+                    else {
+                        std::cout << "\nTermina de llenar tu tablero";
                     }
 
-                    jugador.tirar();
-                }
-                else
-                {
-                    std::cout << "\nEsperando turno";
-                }
-                // }
-                // else {
-                //     std::cout << "\nTermina de llenar tu tablero";
-                // }
+                    primer_tiro = false;
 
-                primer_tiro = false;
-
-                break;
-            case 7:
-                break;
-            default:
-                cout << "Opcion invalida." << endl;
-                break;
+                    break;
+                case 7:
+                    jugador.rage_quit(acabo);
+                    break;
+                default:
+                    cout << "Opcion invalida." << endl;
+                    break;
+                }
             }
+        } while (opc != 7 && acabo == 0);
 
-        } while (opc != 7);
+        if(acabo == 1){
+            cout << "Ganaste!!" << endl;
+        }
+        else if(acabo == -1){
+            cout << "Perdiste..." << endl;
+        }
+        else if(acabo == -2){
+            cout << "Alguien ya no quizo jugar..." << endl;
+        }
+
+        waitEnter();
     }
+
+
+    sem_close(sem);
+    sem_unlink(nombre_semaforo.c_str());
+
     return 0;
 }

@@ -61,6 +61,8 @@ public:
     void escribirEnArchivo(mensaje);
 
     bool get_tablero_listo();
+
+    void rage_quit(short &);
 };
 
 #endif // !JUGADOR_H
