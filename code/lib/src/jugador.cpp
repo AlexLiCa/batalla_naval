@@ -1,16 +1,13 @@
 // necessary includes -------->
 #include "../headers/jugador.h"
 
-#define SEM_NAME "/semaforo_batalla_naval"
-#define SHM_NAME "/shm_batalla_naval"
-
 // functions definition -------->
 /**
  * @brief Construct a new Jugador:: Jugador object
  *
  * @param fifo_fd
  */
-Jugador::Jugador() : tablero_jugador(), tablero_oponente()
+Jugador::Jugador(std::string nombre_semaforo) : tablero_jugador(), tablero_oponente(), sem_name(nombre_semaforo)
 {
     this->tablero_listo = false;
 
@@ -21,11 +18,11 @@ Jugador::Jugador() : tablero_jugador(), tablero_oponente()
         barcos.push_back(Barco(nombres_barcos[i], i + 1));
     }
 
-    this->sem = sem_open(SEM_NAME, 0);
+    this->sem = sem_open((sem_name + "_j").c_str(), 0);
 
     if (this->sem == SEM_FAILED)
     {
-        this->sem = sem_open(SEM_NAME, O_CREAT, 0660, 1);
+        this->sem = sem_open((sem_name + "_j").c_str(), O_CREAT, 0660, 1);
     }
 
     this->tiene_acceso = (sem_trywait(this->sem) == 0);
@@ -34,11 +31,11 @@ Jugador::Jugador() : tablero_jugador(), tablero_oponente()
 
     if (this->tiene_acceso)
     {
-        this->shm_fd = shm_open(SHM_NAME, O_CREAT | O_RDWR, 0660);
+        this->shm_fd = shm_open(sem_name, O_CREAT | O_RDWR, 0660);
     }
     else
     {
-        this->shm_fd = shm_open(SHM_NAME, O_RDWR, 0660);
+        this->shm_fd = shm_open(sem_name, O_RDWR, 0660);
     }
 
     if (this->shm_fd == -1)
@@ -61,15 +58,15 @@ Jugador::Jugador() : tablero_jugador(), tablero_oponente()
 
 /**
  * @brief Destroy the Jugador:: Jugador object
- * 
+ *
  */
 Jugador::~Jugador()
 {
     close(this->shm_fd);
-    shm_unlink(SHM_NAME);
+    shm_unlink(sem_name);
 
     sem_close(this->sem);
-    sem_unlink(SEM_NAME);
+    sem_unlink((this->sem_name + "_j").c_str());
 }
 
 /**
@@ -222,7 +219,7 @@ void Jugador::colocar_barco()
 
 /**
  * @brief Alterna la variable de acceso al semaforo
- * 
+ *
  */
 void Jugador::cambia_acceso()
 {
@@ -231,8 +228,8 @@ void Jugador::cambia_acceso()
 
 /**
  * @brief Recupera la variable de acceso al semaforo
- * 
- * @return true cuando tiene acceso | 
+ *
+ * @return true cuando tiene acceso |
  * @return false cuando no se tiene acceso
  */
 bool Jugador::get_tiene_acceso()
@@ -242,8 +239,8 @@ bool Jugador::get_tiene_acceso()
 
 /**
  * @brief Limpia el archivo de historial
- * 
- * @param nombreArchivo 
+ *
+ * @param nombreArchivo
  */
 void Jugador::limpiar_archivo(const char *nombreArchivo)
 {
@@ -261,7 +258,7 @@ void Jugador::limpiar_archivo(const char *nombreArchivo)
 
 /**
  * @brief Escribe la información en el historial
- * 
+ *
  * @param tiro_info Estructura que lleva la información del tiro
  */
 void Jugador::escribirEnArchivo(mensaje tiro_info)
@@ -296,12 +293,13 @@ void Jugador::escribirEnArchivo(mensaje tiro_info)
 
 /**
  * @brief Funcion ejecutada por el hilo para esperar a que el otro jugador tire
- * 
+ *
  * @param acaba verifica si el juego debe acabar o no
  */
 void Jugador::esperando_turno(short &acaba)
 {
-    try{
+    try
+    {
         sem_wait(this->sem);
 
         mensaje *recibido = static_cast<mensaje *>(this->memory_ptr);
@@ -313,7 +311,7 @@ void Jugador::esperando_turno(short &acaba)
 
         if (resultado == 'O')
         {
-            for (unsigned short i = 0; i< this->barcos.size(); i++)
+            for (unsigned short i = 0; i < this->barcos.size(); i++)
             {
                 if (this->barcos[i].checa_coordenadas(recibido->coordenadas[1], recibido->coordenadas[0]))
                 {
@@ -327,11 +325,13 @@ void Jugador::esperando_turno(short &acaba)
         {
             resultado = 'O';
         }
-        
-        if(this->aun_hay_barcos()){
+
+        if (this->aun_hay_barcos())
+        {
             recibido->valor = resultado;
         }
-        else {
+        else
+        {
             recibido->valor = 'G';
             acaba = -1;
         }
@@ -346,14 +346,14 @@ void Jugador::esperando_turno(short &acaba)
 
         this->cambia_acceso();
     }
-    catch(...){
-
+    catch (...)
+    {
     }
 }
 
 /**
  * @brief Operación de tirar de un proceso a otro
- * 
+ *
  * @param acaba lleva el control si el juego debe acabar
  */
 void Jugador::tirar(short &acaba)
@@ -374,15 +374,17 @@ void Jugador::tirar(short &acaba)
 
     mensaje *recibido = static_cast<mensaje *>(this->memory_ptr);
 
-    if(recibido->valor == 'G'){
+    if (recibido->valor == 'G')
+    {
         this->tablero_oponente.tira(recibido->coordenadas[0], recibido->coordenadas[1], 'O');
         acaba = 1;
     }
-    else {
+    else
+    {
         this->tablero_oponente.tira(recibido->coordenadas[0], recibido->coordenadas[1], recibido->valor);
     }
 
-    char valor = recibido->valor == 'G'? 'O' : recibido->valor;
+    char valor = recibido->valor == 'G' ? 'O' : recibido->valor;
 
     std::cout << (valor == 'O' ? "Le diste" : "Fallaste") << std::endl;
 
@@ -399,8 +401,8 @@ void Jugador::tirar(short &acaba)
 
 /**
  * @brief Finaliza el hilo creado para interactuar con el otro procesp
- * 
- * @param exit 
+ *
+ * @param exit
  */
 void Jugador::finalizar_hilo(bool exit = false)
 {
@@ -412,7 +414,7 @@ void Jugador::finalizar_hilo(bool exit = false)
 
 /**
  * @brief Inicia el Hilo que va a estar pendiente de la respuesta del contrincante
- * 
+ *
  * @param acaba Lleva el control si el juego debe de terminar
  */
 void Jugador::iniciar_hilo(short &acaba)
@@ -422,7 +424,7 @@ void Jugador::iniciar_hilo(short &acaba)
 
 /**
  * @brief Regresa si el jugador ha posicionado todos sus barcos en el tablero
- * 
+ *
  * @return true cuando no quedan barcos que posicionar
  * @return false cuando faltan barcos
  */
@@ -433,26 +435,28 @@ bool Jugador::get_tablero_listo()
 
 /**
  * @brief Otorga un resumen de la vida de cada barco
- * 
+ *
  */
 void Jugador::resumen_barcos()
 {
     for (Barco barco : this->barcos)
     {
-        if(barco.get_vida() > 0)
+        if (barco.get_vida() > 0)
         {
-            std::cout << barco.get_nombre() << " -- " << "Vidas Restante: " << barco.get_vida() << std::endl;   
+            std::cout << barco.get_nombre() << " -- "
+                      << "Vidas Restante: " << barco.get_vida() << std::endl;
         }
-        else 
+        else
         {
-            std::cout << barco.get_nombre() << " -- " << "Hundido" << std::endl;
+            std::cout << barco.get_nombre() << " -- "
+                      << "Hundido" << std::endl;
         }
     }
 }
 
 /**
  * @brief Imprime las posiciones de los barcos en el tablero
- * 
+ *
  */
 void Jugador::posiciones_barcos()
 {
@@ -469,16 +473,19 @@ void Jugador::posiciones_barcos()
 
 /**
  * @brief Verifica si el jugador aun tiene barcos con vida
- * 
- * @return true cuando el jugador aun tiene barcos | 
+ *
+ * @return true cuando el jugador aun tiene barcos |
  * @return false cuando todos los barcos se han hundido
  */
-bool Jugador::aun_hay_barcos(){
-    for(Barco barco : this->barcos){
-        if(barco.get_vida() > 0){
+bool Jugador::aun_hay_barcos()
+{
+    for (Barco barco : this->barcos)
+    {
+        if (barco.get_vida() > 0)
+        {
             return true;
         }
     }
-    
+
     return false;
 }

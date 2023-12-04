@@ -32,6 +32,7 @@ private:
     void *memory_ptr;
     void esperando_turno(short &);
     std::string nombre;
+    std::string sem_name;
 
     struct mensaje
     {
@@ -40,7 +41,7 @@ private:
     };
 
 public:
-    Jugador();
+    Jugador(std::string);
     ~Jugador();
     void muestra_tablero(bool);
     void colocar_barco();
@@ -55,9 +56,6 @@ public:
 
     void cambia_acceso();
     bool get_tiene_acceso();
-
-    void set_nombre(std::string);
-    void get_nombre(std::string);
 
     void limpiar_archivo(const char *);
     void escribirEnArchivo(mensaje);
